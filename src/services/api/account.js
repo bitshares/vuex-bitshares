@@ -1,22 +1,74 @@
-import { key, PrivateKey } from 'bitsharesjs';
+import { key, PrivateKey, Aes } from 'bitsharesjs';
 import { Apis } from 'bitsharesjs-ws';
 import config from '../../../config';
 
-export const suggestBrainkey = (dictionary) => {
-  return key.suggest_brain_key(dictionary);
+const OWNER_KEY_INDEX = 1;
+const ACTIVE_KEY_INDEX = 0;
+
+export const utils = {
+  suggestPassword: () => {
+    return 'P' + key.get_random_key().toWif().substr(0, 45);
+  },
+  suggestBrainkey: (dictionary) => {
+    return key.suggest_brain_key(dictionary);
+  },
+  generateKeyFromPassword: (accountName, role, password) => {
+    const seed = accountName + role + password;
+    const privKey = PrivateKey.fromSeed(seed);
+    const pubKey = privKey.toPublicKey().toString();
+
+    return { privKey, pubKey };
+  },
+
+  generateKeysFromPassword({ name, password }) {
+    const { privKey: activeKey } = this.generateKeyFromPassword(
+      name,
+      'owner',
+      password
+    );
+    const { privKey: ownerKey } = this.generateKeyFromPassword(
+      name,
+      'active',
+      password
+    );
+    return {
+      active: activeKey,
+      owner: ownerKey
+    };
+  },
+
+  getOwnerPubkeyFromBrainkey: (brainkey) => {
+    const ownerKey = key.get_brainPrivateKey(brainkey, OWNER_KEY_INDEX);
+    const ownerPubkey = ownerKey.toPublicKey().toPublicKeyString('BTS');
+    return ownerPubkey;
+  },
+
+  encodeBody: (params) => {
+    return Object.keys(params).map((bodyKey) => {
+      return encodeURIComponent(bodyKey) + '=' + encodeURIComponent(params[bodyKey]);
+    }).join('&');
+  },
+
+  createWallet: ({ brainkey, password }) => {
+    const passwordAes = Aes.fromSeed(password);
+    const encryptionBuffer = key.get_random_key().toBuffer();
+    const encryptionKey = passwordAes.encryptToHex(encryptionBuffer);
+    const aesPrivate = Aes.fromSeed(encryptionBuffer);
+
+    const normalizedBrainkey = key.normalize_brainKey(brainkey);
+    const encryptedBrainkey = aesPrivate.encryptToHex(normalizedBrainkey);
+    const passwordPrivate = PrivateKey.fromSeed(password);
+    const passwordPubkey = passwordPrivate.toPublicKey().toPublicKeyString();
+
+    return {
+      passwordPubkey,
+      encryptionKey,
+      encryptedBrainkey,
+      aesPrivate,
+    };
+  }
 };
 
-export const suggestPassword = () => {
-  return 'P' + key.get_random_key().toWif().substr(0, 45);
-};
-
-export const generateKeyFromPassword = (accountName, role, password) => {
-  const seed = accountName + role + password;
-  const privKey = PrivateKey.fromSeed(seed);
-  const pubKey = privKey.toPublicKey().toString()
-
-  return { privKey, pubKey };
-};
 
 export const getUser = async (nameOrId) => {
   try {
@@ -33,7 +85,6 @@ export const getUser = async (nameOrId) => {
       error: 'User not found'
     };
   } catch (error) {
-    console.log(error);
     return {
       success: false,
       error
@@ -42,17 +93,13 @@ export const getUser = async (nameOrId) => {
 };
 
 export const getAccountIdByOwnerPubkey = async ownerPubkey => {
-  console.log('owner pub key: ', ownerPubkey)
-  console.log(Apis.instance().db_api())
   const res = await Apis.instance().db_api().exec('get_key_references', [[ownerPubkey]]);
-  console.log(res)
   return res ? res[0] : null;
 };
 
-const encodeBody = (params) => {
-  return Object.keys(params).map((bodyKey) => {
-    return encodeURIComponent(bodyKey) + '=' + encodeURIComponent(params[bodyKey]);
-  }).join('&');
+export const getAccountIdByBrainkey = async brainkey => {
+  const ownerPubkey = utils.getOwnerPubkeyFromBrainkey(brainkey);
+  return getAccountIdByOwnerPubkey(ownerPubkey);
 };
 
 export const createAccount = async ({ name, activeKey, ownerKey, email }) => {
@@ -61,8 +108,8 @@ export const createAccount = async ({ name, activeKey, ownerKey, email }) => {
     const body = {
       name,
       email,
-      active_key: activeKey.toPublicKey().toPublicKeyString(),
-      owner_key: ownerKey.toPublicKey().toPublicKeyString()
+      active_key: activeKey.toPublicKey().toPublicKeyString('BTS'),
+      owner_key: ownerKey.toPublicKey().toPublicKeyString('BTS')
     };
     const response = await fetch(faucetUrl, {
       method: 'post',
@@ -70,7 +117,7 @@ export const createAccount = async ({ name, activeKey, ownerKey, email }) => {
       headers: {
         'Content-type': 'application/x-www-form-urlencoded'
       },
-      body: encodeBody(body)
+      body: utils.encodeBody(body)
     });
     const result = await response.json();
     if (result.result === 'OK') {
@@ -86,16 +133,23 @@ export const createAccount = async ({ name, activeKey, ownerKey, email }) => {
   } catch (error) {
     return {
       success: false,
-      error: 'Account creation error'
+      error
     };
   }
 };
 
+
+export const createAccountBrainkey = async ({ name, brainkey, email }) => {
+  const activeKey = key.get_brainPrivateKey(brainkey, ACTIVE_KEY_INDEX);
+  const ownerKey = key.get_brainPrivateKey(brainkey, OWNER_KEY_INDEX);
+  return createAccount({ name, activeKey, ownerKey, email });
+};
+
 export default {
-  suggestBrainkey,
-  suggestPassword,
-  generateKeyFromPassword,
+  utils,
   getUser,
   getAccountIdByOwnerPubkey,
-  createAccount
+  getAccountIdByBrainkey,
+  createAccount,
+  createAccountBrainkey
 };

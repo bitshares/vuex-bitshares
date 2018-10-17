@@ -4,8 +4,10 @@
   "description": "Vue way to build DAP's on bitshares net",
   "main": "src/index.js",
   "scripts": {
+    "help": "babel --help",
+    "build": "babel src --delete-dir-on-start --compact true --minified --out-dir lib",
     "test": "jest",
-    "lint": "eslint ./**/*.{vue,js}"
+    "lint": "eslint ./src"
   },
   "repository": {
     "type": "git",
@@ -29,19 +31,19 @@
     "js-cookie": "^2.2.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0",
     "@vue/test-utils": "^1.0.0-beta.10",
-    "babel-cli": "^6.0.0",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^23.6.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-stage-2": "^6.24.1",
     "eslint": "^5.6.1",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-vue": "latest",
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-import-resolver-webpack": "^0.10.1",
-    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-node": "^7.0.1",
     "eslint-plugin-vue": "latest",
     "inject-loader": "^4.0.1",
@@ -53,12 +55,5 @@
     "vue-template-compiler": "^2.5.13",
     "vue-test-utils": "^1.0.0-beta.11",
     "vuex": "^3.0.1"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.js$": "<rootDir>/node_modules/babel-jest"
-    },
-    "verbose": true,
-    "transformIgnorePatterns": []
   }
 }
