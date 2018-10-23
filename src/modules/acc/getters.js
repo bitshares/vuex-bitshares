@@ -5,7 +5,7 @@ const getters = {
     return state.userId;
   },
   getCurrentUserName: state => {
-    return state.userData && state.userData.account.name;
+    return state.userData && state.userData.account.name || null;
   },
   getUserBalances: state => {
     if (!state.userData || !state.userData.balances) return {};

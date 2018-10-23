@@ -1,12 +1,16 @@
 const suggestedBrainkey = 'glink omental webless pschent knopper brumous '
   + 'scarry were wasting isopod raper barbas maco kirn tegua mitome';
 
-export const suggestBrainkey = () => {
-  return suggestedBrainkey;
-};
-
+  
 const users = ['hobb1t'];
+  
 
+const utils = {
+  suggestBrainkey: () => {
+    return suggestedBrainkey;
+  }
+}
+  
 export const getUser = async (nameOrId) => {
   return new Promise((resolve) => {
     process.nextTick(() => {
@@ -47,5 +51,5 @@ export const createAccount = ({ name }) => {
 };
 
 export default {
-  suggestBrainkey, getUser, getAccountIdByOwnerPubkey, createAccount
+  utils, getUser, getAccountIdByOwnerPubkey, createAccount
 };
