@@ -65,13 +65,7 @@ const getters = {
     return state.userData;
   },
 
-  isPasswordLogin: state => state.userType === 'password';
+  isPasswordLogin: state => state.userType === 'password'
 }
 
-
-
-
-
-
-
-
+export default getters;

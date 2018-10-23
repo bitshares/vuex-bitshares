@@ -46,7 +46,7 @@ const createWallet = ({ brainkey, password }) => {
 };
 
 const actions = {
-  /**
+    /**
    * Unlocks user's wallet via provided password
    * @param {string} password - user password
    */
@@ -56,15 +56,13 @@ const actions = {
     const aesPrivate = Aes.fromSeed(encryptionPlainbuffer);
     commit(types.ACCOUNT_UNLOCK_WALLET, aesPrivate);
   },
-  
+
   /**
    * Locks user's wallet
    */
   lockWallet: ({ commit }) => {
     commit(types.ACCOUNT_LOCK_WALLET);
   },
-
-  suggestPassword: API.Account,
 
   loginWithPassword: async ({ commit }, { name, password }) => {
     const { privKey: activeKey } = API.Account.generateKeyFromPassword(
@@ -341,16 +339,10 @@ const actions = {
     } else {
       commit(types.FETCH_CURRENT_USER_ERROR);
     }
-  },  
+  },
+  suggestPassword: () => {
+    API.Account.utils
+  }
 }
 
-
-export const { suggestPassword } = API.Account;
-
-
-
-
-
-
-
-
+export default actions;
