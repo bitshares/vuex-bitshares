@@ -3,13 +3,14 @@ import * as types from '../mutations';
 import API from '../services/api';
 import config from '../../config';
 
-const BtsMarket = API.Market['BTS'];
+const BtsMarket = API.Market.BTS;
 
 const actions = {
   async fetchMarketStats(store, base) {
     const market = API.Market[base];
     const quotes = config.defaultMarkets[base];
     const stats = await market.fetchStats(quotes);
+    return stats;
   },
   subscribeToMarket(store, { balances }) {
     const { commit } = store;
