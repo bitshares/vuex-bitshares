@@ -39,6 +39,7 @@ const getters = {
   getAssetHistoryByDay: state => {
     return (id, day) => {
       if (!state.days[day]) return { first: 0, last: 0 };
+      if (id === state.baseId) return { first: 1, last: 1};
       return state.days[day][id] || { first: 0, last: 0 };
     };
   },
