@@ -5,6 +5,7 @@ const getters = {
     };
   },
   isFetching: state => state.fetching,
+  initialLoaded: state => state.initLoaded,
   getAssetHistoryByDay: state => {
     return (id, day) => {
       if (!state.days[day]) return { first: 0, last: 0 };
