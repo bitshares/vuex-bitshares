@@ -46,7 +46,7 @@ const createWallet = ({ brainkey, password }) => {
 };
 
 const actions = {
-    /**
+  /**
    * Unlocks user's wallet via provided password
    * @param {string} password - user password
    */
@@ -341,8 +341,8 @@ const actions = {
     }
   },
   suggestPassword: () => {
-    API.Account.utils
+    return API.Account.utils.suggestPassword;
   }
-}
+};
 
 export default actions;

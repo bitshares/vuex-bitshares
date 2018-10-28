@@ -13,7 +13,7 @@ const getters = {
     if (state.keys) {
       return state.keys;
     }
-    const brainkey = getBrainkey(state);
+    const brainkey = this.getBrainkey(state);
     if (!brainkey) return null;
     return {
       active: key.get_brainPrivateKey(brainkey, ACTIVE_KEY_INDEX),
@@ -66,6 +66,6 @@ const getters = {
   },
 
   isPasswordLogin: state => state.userType === 'password'
-}
+};
 
 export default getters;
