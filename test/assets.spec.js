@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import { createLocalVue } from 'vue-test-utils';
 import Vuex from 'vuex';
-import assets from '../src/modules/assets.js';
+import assets from '../src/modules/assets';
 
 jest.mock('../src/services/api/assets.js');
 
