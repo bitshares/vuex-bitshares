@@ -1,6 +1,5 @@
 // temp
 import { Aes } from 'bitsharesjs';
-
 import API from '../../services/api';
 import { types } from './mutations';
 
@@ -155,6 +154,24 @@ const actions = {
       result.data.balances = balancesToObject(user.balances);
       commit(types.FETCH_CURRENT_USER, { data: user });
     }
+  },
+
+  /**
+   * Unlocks user's wallet via provided password
+   * @param {string} password - user password
+   */
+  unlockWallet: ({ commit, state }, password) => {
+    const passwordAes = Aes.fromSeed(password);
+    const encryptionPlainbuffer = passwordAes.decryptHexToBuffer(state.encryptionKey);
+    const aesPrivate = Aes.fromSeed(encryptionPlainbuffer);
+    commit(types.ACCOUNT_UNLOCK_WALLET, aesPrivate);
+  },
+
+  /**
+   * Locks user's wallet
+   */
+  lockWallet: ({ commit }) => {
+    commit(types.ACCOUNT_LOCK_WALLET);
   }
 };
 
