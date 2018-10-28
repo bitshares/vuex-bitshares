@@ -16,6 +16,9 @@ const getters = {
     }, {});
     return nonZeroBalances;
   },
+  isLocked: state => {
+    return !state.aesPrivate && !state.keys;
+  },
   isLoggedIn: state => !!state.userId,
   getKeys: state => {
     if (state.keys && state.keys.active && state.keys.owner) {
