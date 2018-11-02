@@ -8,6 +8,7 @@ import Operations from './api/operations';
 import Openledger from './api/openledger';
 import Parameters from './api/parameters';
 import Backup from './api/backup';
+import History from './api/history';
 
 const API = {
   Connection,
@@ -18,6 +19,7 @@ const API = {
   Market,
   Operations,
   Openledger,
+  History,
   Parameters,
   Backup
 };

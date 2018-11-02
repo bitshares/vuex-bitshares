@@ -6,7 +6,7 @@
   "scripts": {
     "help": "babel --help",
     "build": "babel src --delete-dir-on-start --compact true --minified --out-dir lib",
-    "test": "jest",
+    "test": "jest test/history.spec.js",
     "lint": "eslint ./src"
   },
   "repository": {

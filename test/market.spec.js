@@ -1,7 +1,6 @@
 /* eslint-env jest */
 import * as utils from '../src/utils';
 import API from '../src/services/api';
-import config from '../config';
 import ApiSamples from '../__mocks__/api_samples';
 
 describe('market service', () => {
@@ -15,7 +14,7 @@ describe('market service', () => {
     
     expect(stats[0]).toEqual(usdStats);
     expect(stats[1]).toEqual(eosStats);
-  })
+  });
   test('samples distribution to specified accuracy', () => {
     expect(utils.distributionSampling(
       {
