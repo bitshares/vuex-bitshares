@@ -1,6 +1,6 @@
 import { Apis } from 'bitsharesjs-ws';
 
-const precisedCount = (cnt, prec) => cnt / 10 ** prec;
+const precisedCount = (cnt, prec) => cnt / (10 ** prec);
 
 // It returns open and close prices for given bucket with base and quote precisions
 const getPricesFromBucket = (basePrecision, quotePrecision, bucket) => {
@@ -11,7 +11,7 @@ const getPricesFromBucket = (basePrecision, quotePrecision, bucket) => {
   return {
     open: openCountBase / openCountQuote,
     close: closeCountBase / closeCountQuote
-  }
+  };
 };
 
 const getUsdPrices = (basePrecision, usdPrecision, usdFirstBucket, usdLastBucket) => {
@@ -21,7 +21,7 @@ const getUsdPrices = (basePrecision, usdPrecision, usdFirstBucket, usdLastBucket
   return {
     last: usdClosePrice,
     median: medianPrice
-  }
+  };
 };
 
 const dailyStatsInHourBuckets = (base, quote) => {
@@ -37,13 +37,13 @@ const dailyStatsInHourBuckets = (base, quote) => {
     return {
       asset: quote,
       data: result
-    }
+    };
   });
 };
 
 const getDailyStats = (base, quote, usdPrices, buckets) => {
   if (!buckets.length) return false;
-  const volume = buckets.reduce((vol, itm) => parseInt(itm.base_volume) + vol, 0);
+  const volume = buckets.reduce((vol, itm) => parseInt(itm.base_volume, 10) + vol, 0);
   const baseVolume = precisedCount(volume, base.precision);
   const firstBucket = buckets[0];
   const lastBucket = buckets[buckets.length - 1];
@@ -54,18 +54,19 @@ const getDailyStats = (base, quote, usdPrices, buckets) => {
   const change = priceDecrease * 100 / lastBucketPrices.close;
 
   return {
-    baseVolume: + baseVolume.toFixed(base.precision),
-    usdVolume: + (baseVolume / usdPrices.median).toFixed(2),
+    baseVolume: +baseVolume.toFixed(base.precision),
+    usdVolume: +(baseVolume / usdPrices.median).toFixed(2),
     price: lastBucketPrices.close,
-    usdPrice: + (lastBucketPrices.close / usdPrices.last).toFixed(2),
+    usdPrice: +(lastBucketPrices.close / usdPrices.last).toFixed(2),
     change24h: change.toFixed(2)
   };
 };
 
 const getMarketStats = async (baseAsset, usdAsset, quotes) => {
   quotes.unshift(usdAsset);
-  const result = await Promise.all(quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, quote)));
-  const [usdResult, ...others] = result;
+  const [usdResult, ...others] = await Promise.all(
+    quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, quote))
+  );
 
   const usdFirstBucket = usdResult.data[0];
   const usdLastBucket = usdResult.data[usdResult.data.length - 1];
