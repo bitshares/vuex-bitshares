@@ -114,6 +114,7 @@ const getMarketChanges7d = async (base, quotes) => {
     const change = priceDecrease * 100 / lastPrices.close;
     result[asset.symbol] = change.toFixed(2);
   });
+  return result;
 };
 
 

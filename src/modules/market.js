@@ -18,6 +18,12 @@ const actions = {
       return false;
     }
   },
+  async fetch7dMarketStats({ commit }, base) {
+    const quotes = config.defaultMarkets[base];
+    const stats7 = await API.History.getMarketChanges7d(base, quotes);
+    commit(types.FETCH_MARKET_STATS_7D_COMPLETE, stats7);
+    return stats7;
+  },
   subscribeToMarket(store, { balances }) {
     const { commit } = store;
     const assetsIds = Object.keys(balances);
@@ -72,6 +78,7 @@ const getters = {
   },
   getMarketBases: state => state.marketBases,
   getMarketStats: state => state.stats,
+  getMarketStats7d: state => state.stats7d,
   isFetching: state => state.pending,
   isError: state => state.error,
   isSubscribed: state => state.subscribed,
@@ -85,6 +92,7 @@ const initialState = {
   prices: {},
   baseId: '1.3.0',
   stats: {},
+  stats7d: {},
   marketBases: config.marketBases
 };
 
@@ -100,6 +108,8 @@ const mutations = {
   },
   [types.FETCH_MARKET_STATS_REQUEST](state) {
     state.pending = true;
+    state.stats = {};
+    state.stats7d = {};
   },
   [types.FETCH_MARKET_STATS_REQUEST_COMPLETE](state, stats) {
     state.stats = stats;
@@ -108,6 +118,9 @@ const mutations = {
   [types.FETCH_MARKET_STATS_REQUEST_ERROR](state, error) {
     state.error = error;
     state.pending = false;
+  },
+  [types.FETCH_MARKET_STATS_7D_COMPLETE](state, stats7d) {
+    state.stats7d = stats7d;
   }
 };
 
