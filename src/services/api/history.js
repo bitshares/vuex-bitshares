@@ -64,7 +64,9 @@ const getDailyStats = (base, quote, usdPrices, buckets) => {
     usdVolume: 0,
     price: 0,
     usdPrice: 0,
-    change24h: 0
+    change24h: 0,
+    base: base.symbol,
+    ticker: quote.symbol
   };
   const volume = buckets.reduce((vol, itm) => parseInt(itm.base_volume, 10) + vol, 0);
   const baseVolume = precisedCount(volume, base.precision);
