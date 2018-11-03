@@ -13,7 +13,7 @@ const getters = {
     if (state.keys) {
       return state.keys;
     }
-    const brainkey = this.getBrainkey(state);
+    const brainkey = getters.getBrainkey(state);
     if (!brainkey) return null;
     return {
       active: key.get_brainPrivateKey(brainkey, ACTIVE_KEY_INDEX),
