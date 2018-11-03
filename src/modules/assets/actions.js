@@ -27,6 +27,7 @@ const actions = {
     const result = await API.Assets.fetch(filteredAssets);
 
     if (result) {
+      console.log(result)
       // to remove prefix specified in config (e.x. ".OPEN")
       const prefix = config.removePrefix;
       if (prefix) {
@@ -49,8 +50,16 @@ const actions = {
 
 actions.fetchDefaultAssets = async (store) => {
   const { commit } = store;
-  const { defaultAssetsNames } = config;
-  const assets = await actions.fetchAssets(store, { assets: defaultAssetsNames });
+  const { defaultAssetsNames, defaultMarkets } = config;
+  const marketInfoAssets = Object.keys(defaultMarkets).reduce((result, base) => {
+    return [...new Set([...defaultMarkets[base], ...result])] 
+  }, [])
+
+  const defaultAssets = [...new Set([...marketInfoAssets, ...defaultAssetsNames])]
+
+  console.log(defaultAssets)
+
+  const assets = await actions.fetchAssets(store, { assets: defaultAssets });
   if (assets) {
     const ids = Object.keys(assets);
     commit(types.SAVE_DEFAULT_ASSETS_IDS, { ids });
