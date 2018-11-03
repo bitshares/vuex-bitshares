@@ -13,7 +13,7 @@ const actions = {
       const stats = await API.History.getMarketStats(base, 'USD', quotes);
       console.log('!!!! fetched', stats);
       commit(types.FETCH_MARKET_STATS_REQUEST_COMPLETE, { base, stats });
-      //dispatch('market/fetch7dMarketStats', base, { root: true });
+      dispatch('market/fetch7dMarketStats', base, { root: true });
       return stats;
     } catch (e) {
       console.log('ERROR', e);
@@ -24,6 +24,7 @@ const actions = {
   async fetch7dMarketStats({ commit }, base) {
     const quotes = config.defaultMarkets[base];
     const stats7 = await API.History.getMarketChanges7d(base, quotes);
+    
     commit(types.FETCH_MARKET_STATS_7D_COMPLETE, { base, stats7 });
     return stats7;
   },
