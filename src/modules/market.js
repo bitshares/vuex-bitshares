@@ -11,22 +11,20 @@ const actions = {
     const quotes = config.defaultMarkets[base];
     try {
       const stats = await API.History.getMarketStats(base, 'USD', quotes);
-      console.log('!!!! fetched', stats);
       commit(types.FETCH_MARKET_STATS_REQUEST_COMPLETE, { base, stats });
       dispatch('market/fetch7dMarketStats', base, { root: true });
       return stats;
     } catch (e) {
-      console.log('ERROR', e);
+      console.log(e);
       commit(types.FETCH_MARKET_STATS_REQUEST_ERROR, e);
       return false;
     }
   },
   async fetch7dMarketStats({ commit }, base) {
     const quotes = config.defaultMarkets[base];
-    const stats7 = await API.History.getMarketChanges7d(base, quotes);
-    
-    commit(types.FETCH_MARKET_STATS_7D_COMPLETE, { base, stats7 });
-    return stats7;
+    const stats7d = await API.History.getMarketChanges7d(base, quotes);
+    commit(types.FETCH_MARKET_STATS_7D_COMPLETE, { base, stats7d });
+    return stats7d;
   },
   subscribeToMarket(store, { balances }) {
     const { commit } = store;
@@ -96,7 +94,6 @@ const initialState = {
   prices: {},
   baseId: '1.3.0',
   stats: {},
-  stats7d: {},
   marketBases: config.marketBases
 };
 
@@ -113,7 +110,6 @@ const mutations = {
   [types.FETCH_MARKET_STATS_REQUEST](state, base) {
     state.pending = true;
     state.stats = { [base]: {} };
-    state.stats7d = { [base]: {} };
   },
   [types.FETCH_MARKET_STATS_REQUEST_COMPLETE](state, { base, stats }) {
     state.stats[base] = stats;
@@ -124,7 +120,10 @@ const mutations = {
     state.pending = false;
   },
   [types.FETCH_MARKET_STATS_7D_COMPLETE](state, { base, stats7d }) {
-    state.stats7d[base] = stats7d;
+    Object.keys(stats7d).forEach(quote => {
+      const quoteStats = state.stats[base][quote]
+      if (quoteStats) quoteStats.change7d = stats7d[quote]
+    })
   }
 };
 
