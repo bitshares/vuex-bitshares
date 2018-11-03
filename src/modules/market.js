@@ -11,10 +11,12 @@ const actions = {
     const quotes = config.defaultMarkets[base];
     try {
       const stats = await API.History.getMarketStats(base, 'USD', quotes);
+      console.log('!!!! fetched', stats);
       commit(types.FETCH_MARKET_STATS_REQUEST_COMPLETE, stats);
-      dispatch('market/fetch7dMarketStats', base, { root: true });
+      //dispatch('market/fetch7dMarketStats', base, { root: true });
       return stats;
     } catch (e) {
+      console.log('ERROR', e);
       commit(types.FETCH_MARKET_STATS_REQUEST_ERROR, e);
       return false;
     }

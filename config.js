@@ -31,8 +31,8 @@ const config = {
   },
   referrer: 'trfnd',
   faucetUrl: 'https://faucet.trusty.fund/signup',
-  marketBases: ["BTC", "ETH", "BTS", "USD", "CNY"],
-  defaultMarkets: { 'BTC': [
+  marketBases: ["OPEN.BTC", "OPEN.ETH", "BTS", "USD", "CNY"],
+  defaultMarkets: { 'OPEN.BTC': [
     "BTS",
     "OPEN.ETH",
     "OPEN.DASH",
@@ -41,7 +41,7 @@ const config = {
     "OPEN.STEEM",
     "OPEN.USDT",
     "OPEN.MAID",
-  ], 'ETH': [
+  ], 'OPEN.ETH': [
     "BTS",
     "OPEN.BTC",
     "OPEN.DASH",
@@ -71,20 +71,11 @@ const config = {
     "OPEN.EOSDAC",
     "OPEN.MAID",
     "OPEN.HEAT",
-    // "OPEN.INCENT",
-    "RUDEX.MUSE",
-    "RUDEX.TT",
-    "RUDEX.SCR",
-    "RUDEX.ETH",
-    "RUDEX.DGB",
     "XBTSX.STH",
     "ZEPH",
     "HERTZ",
     "SPARKDEX.BTC",
-    "SPARKDEX.ETH",
-    "RUDEX.SBD",
-    "RUDEX.KRM",
-    "RUDEX.STEEM"
+    "SPARKDEX.ETH"
   ], 'USD': [
     "BTS",
     "OPEN.BTC",
@@ -99,9 +90,7 @@ const config = {
     "GDEX.ETH",
     "GDEX.EOS",
     "GDEX.BTO",
-    "OPEN.EOSDAC",
-    "RUDEX.STEEM",
-    "RUDEX.KRM"
+    "OPEN.EOSDAC"
   ], 'CNY': [
     "BTS",
     "OPEN.BTC",
@@ -113,9 +102,7 @@ const config = {
     "GDEX.ETH",
     "GDEX.EOS",
     "GDEX.BTO",
-    "GDEX.BTM",
-    "RUDEX.GOLOS",
-    "RUDEX.GBG"
+    "GDEX.BTM"
   ]},
   
 };

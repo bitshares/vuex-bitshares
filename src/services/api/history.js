@@ -41,6 +41,8 @@ const getStatsForPeriodAndInteval = (base, quote, bucket, days) => {
       asset: quote,
       data: result
     };
+  }).catch((e) => {
+    console.log(e, 'in', base, quote);
   });
 };
 
@@ -57,7 +59,13 @@ const dailyStatsInHourBuckets = (base, quote) => {
 };
 
 const getDailyStats = (base, quote, usdPrices, buckets) => {
-  if (!buckets.length) return false;
+  if (!buckets.length) return {
+    baseVolume: 0,
+    usdVolume: 0,
+    price: 0,
+    usdPrice: 0,
+    change24h: 0
+  };
   const volume = buckets.reduce((vol, itm) => parseInt(itm.base_volume, 10) + vol, 0);
   const baseVolume = precisedCount(volume, base.precision);
   const firstBucket = buckets[0];
@@ -81,21 +89,35 @@ const getMarketStats = async (base, fiat, quotes) => {
   const baseAsset = assets[base];
   const usdAsset = assets[fiat];
 
-  // We adding fiat symbol to the beginning of quotes to fetch it first for market
-  quotes.unshift(fiat);
+  if (base !== fiat) {
+    quotes.unshift(fiat);
 
-  const [usdResult, ...others] = await Promise.all(
-    quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, assets[quote]))
-  );
+    const [usdResult, ...others] = await Promise.all(
+      quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, assets[quote]))
+    );
 
-  const usdFirstBucket = usdResult.data[0];
-  const usdLastBucket = usdResult.data[usdResult.data.length - 1];
-  const usdPrices = getUsdPrices(baseAsset.precision, usdAsset.precision, usdFirstBucket, usdLastBucket);
+    const usdFirstBucket = usdResult.data[0];
+    const usdLastBucket = usdResult.data[usdResult.data.length - 1];
+    const usdPrices = getUsdPrices(baseAsset.precision, usdAsset.precision, usdFirstBucket, usdLastBucket);
 
-  return others.reduce((result, rawStat) => {
-    result[rawStat.asset.symbol] = getDailyStats(baseAsset, rawStat.asset, usdPrices, rawStat.data);
-    return result;
-  }, {});
+    return others.reduce((result, rawStat) => {
+      result[rawStat.asset.symbol] = getDailyStats(baseAsset, rawStat.asset, usdPrices, rawStat.data);
+      return result;
+    }, {});
+  } else {
+    const stats = await Promise.all(
+      quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, assets[quote]))
+    );
+    return stats.reduce((result, rawStat) => {
+      result[rawStat.asset.symbol] = getDailyStats(baseAsset, rawStat.asset, {
+        median: 1,
+        last: 1,
+      }, rawStat.data);
+      return result;
+    }, {});
+  }
+
+
 };
 
 const getMarketChanges7d = async (base, quotes) => {
