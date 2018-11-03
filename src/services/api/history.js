@@ -133,7 +133,10 @@ const getMarketChanges7d = async (base, quotes) => {
 
   const result = {};
   rawData.forEach(({ asset, data }) => {
-    if (!data.length) result[asset.symbol] = 0;
+    if (!data.length) {
+      result[asset.symbol] = 0;
+      return;
+    }
     const firstBucket = data[0];
     const lastBucket = data[data.length - 1];
     const firstPrices = getPricesFromBucket(baseAsset.precision, asset.precision, firstBucket);
@@ -142,6 +145,7 @@ const getMarketChanges7d = async (base, quotes) => {
     const change = priceDecrease * 100 / lastPrices.close;
     result[asset.symbol] = change.toFixed(2);
   });
+  console.log('!!!! result', result)
   return result;
 };
 
