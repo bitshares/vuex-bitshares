@@ -6,10 +6,17 @@ import config from '../../config';
 const BtsMarket = API.Market.BTS;
 
 const actions = {
-  async fetchMarketStats(store, base) {
+  async fetchMarketStats({ commit }, base) {
+    commit(types.FETCH_MARKET_STATS_REQUEST);
     const quotes = config.defaultMarkets[base];
-    const stats = await API.History.getMarketStats(base, 'USD', quotes);
-    return stats;
+    try {
+      const stats = await API.History.getMarketStats(base, 'USD', quotes);
+      commit(types.FETCH_MARKET_STATS_REQUEST_COMPLETE, stats);
+      return stats;
+    } catch (e) {
+      commit(types.FETCH_MARKET_STATS_REQUEST_ERROR, e);
+      return false;
+    }
   },
   subscribeToMarket(store, { balances }) {
     const { commit } = store;
