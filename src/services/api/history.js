@@ -133,7 +133,7 @@ const getMarketChanges7d = async (base, quotes) => {
 
   const result = {};
   rawData.forEach(({ asset, data }) => {
-    if (!data.length) return 0;
+    if (!data.length) result[asset.symbol] = 0;
     const firstBucket = data[0];
     const lastBucket = data[data.length - 1];
     const firstPrices = getPricesFromBucket(baseAsset.precision, asset.precision, firstBucket);
