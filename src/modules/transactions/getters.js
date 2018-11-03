@@ -1,7 +1,5 @@
 import * as utils from '../../utils';
 
-console.log(utils.getMemoSizeFast);
-
 const getters = {
   getPendingOrders: state => state.pendingOrders,
   hasPendingOrders: state => state.pendingOrders.sellOrders.length

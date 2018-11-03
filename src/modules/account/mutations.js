@@ -1,26 +1,25 @@
-import * as actions from '../actions/account';
-import * as types from '../mutations';
-import * as getters from '../getters/account';
-
-
-const initialState = {
-  passwordPubkey: null,
-  encryptedBrainkey: null,
-  brainkeyBackupDate: null,
-  encryptionKey: null,
-  keys: null,
-  created: null,
-  aesPrivate: null,
-  userId: null,
-  error: null,
-  pending: false,
-  userData: null,
-  userFetching: false,
-  userError: false,
-  userType: 'wallet',
+export const types = {
+  ACCOUNT_SIGNUP_REQUEST: 'ACCOUNT_SIGNUP_REQUEST',
+  ACCOUNT_SIGNUP_COMPLETE: 'ACCOUNT_SIGNUP_COMPLETE',
+  ACCOUNT_SIGNUP_ERROR: 'ACCOUNT_SIGNUP_ERROR',
+  ACCOUNT_PASSWORD_LOGIN_COMPLETE: 'ACCOUNT_PASSWORD_LOGIN_COMPLETE',
+  ACCOUNT_LOGIN_REQUEST: 'ACCOUNT_LOGIN_REQUEST',
+  ACCOUNT_LOGIN_COMPLETE: 'ACCOUNT_LOGIN_COMPLETE',
+  ACCOUNT_LOGIN_ERROR: 'ACCOUNT_LOGIN_ERROR',
+  ACCOUNT_LOCK_WALLET: 'ACCOUNT_LOCK_WALLET',
+  ACCOUNT_UNLOCK_WALLET: 'ACCOUNT_UNLOCK_WALLET',
+  ACCOUNT_BRAINKEY_BACKUP: 'ACCOUNT_BRAINKEY_BACKUP',
+  SET_ACCOUNT_USER_DATA: 'SET_ACCOUNT_USER_DATA',
+  ACCOUNT_LOGOUT: 'ACCOUNT_LOGOUT',
+  FETCH_CURRENT_USER_REQUEST: 'FETCH_CURRENT_USER_REQUEST',
+  FETCH_CURRENT_USER_COMPLETE: 'FETCH_CURRENT_USER_COMPLETE',
+  FETCH_CURRENT_USER_ERROR: 'FETCH_CURRENT_USER_ERROR',
+  CLEAR_CURRENT_USER_DATA: 'CLEAR_CURRENT_USER_DATA',
+  CLEAR_CURRENT_USER_WALLET_DATA: 'CLEAR_CURRENT_USER_WALLET_DATA',
+  STORE_BACKUP_DATE: 'STORE_BACKUP_DATE'
 };
 
-const mutations = {
+export const mutations = {
   [types.ACCOUNT_SIGNUP_REQUEST]: (state) => {
     state.pending = true;
   },
@@ -106,12 +105,4 @@ const mutations = {
   [types.STORE_BACKUP_DATE]: (state, date) => {
     state.brainkeyBackupDate = date;
   }
-};
-
-export default {
-  state: initialState,
-  mutations,
-  actions,
-  getters,
-  namespaced: true
 };

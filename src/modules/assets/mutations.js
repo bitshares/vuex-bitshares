@@ -1,17 +1,19 @@
 import Vue from 'vue';
-import * as types from '../mutations';
-import * as actions from '../actions/assets';
-import * as getters from '../getters/assets';
-import PersistentStorage from '../services/persistent-storage.js';
+import PersistentStorage from '../../services/persistent-storage.js';
 
-const initialState = {
-  defaultAssetsIds: [],
-  assets: {},
-  hiddenAssetsIds: [],
-  pending: false
+export const types = {
+  FETCH_ASSETS_REQUEST: 'FETCH_ASSETS_REQUEST',
+  FETCH_ASSETS_COMPLETE: 'FETCH_ASSETS_COMPLETE',
+  FETCH_ASSETS_ERROR: 'FETCH_ASSETS_ERROR',
+  FETCH_DEFAULT_ASSETS_REQUEST: 'FETCH_DEFAULT_ASSETS_REQUEST',
+  FETCH_DEFAULT_ASSETS_COMPLETE: 'FETCH_DEFAULT_ASSETS_COMPLETE',
+  FETCH_DEFAULT_ASSETS_ERROR: 'FETCH_DEFAULT_ASSETS_ERROR',
+  HIDE_ASSET: 'HIDE_ASSET',
+  SHOW_ASSET: 'SHOW_ASSET',
+  SAVE_DEFAULT_ASSETS_IDS: 'SAVE_DEFAULT_ASSETS_IDS'
 };
 
-const mutations = {
+export const mutations = {
   [types.FETCH_ASSETS_REQUEST](state) {
     state.pending = true;
   },
@@ -39,12 +41,4 @@ const mutations = {
     );
     PersistentStorage.set('hidden_assets', state.hiddenAssetsIds);
   }
-};
-
-export default {
-  state: initialState,
-  actions,
-  mutations,
-  getters,
-  namespaced: true
 };
