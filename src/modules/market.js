@@ -7,9 +7,8 @@ const BtsMarket = API.Market.BTS;
 
 const actions = {
   async fetchMarketStats(store, base) {
-    const market = API.Market[base];
     const quotes = config.defaultMarkets[base];
-    const stats = await market.fetchStats(quotes);
+    const stats = await API.History.getMarketStats(base, 'USD', quotes);
     return stats;
   },
   subscribeToMarket(store, { balances }) {
@@ -65,6 +64,7 @@ const getters = {
     };
   },
   getMarketBases: state => state.marketBases,
+  getMarketStats: state => state.stats,
   isFetching: state => state.pending,
   isError: state => state.error,
   isSubscribed: state => state.subscribed,
@@ -77,6 +77,7 @@ const initialState = {
   subscribed: false,
   prices: {},
   baseId: '1.3.0',
+  stats: {},
   marketBases: config.marketBases
 };
 
@@ -89,6 +90,17 @@ const mutations = {
   },
   [types.UNSUB_FROM_MARKET_COMPLETE](state) {
     state.subscribed = false;
+  },
+  [types.FETCH_MARKET_STATS_REQUEST](state) {
+    state.pending = true;
+  },
+  [types.FETCH_MARKET_STATS_REQUEST_COMPLETE](state, stats) {
+    state.stats = stats;
+    state.pending = false;
+  },
+  [types.FETCH_MARKET_STATS_REQUEST_ERROR](state, error) {
+    state.error = error;
+    state.pending = false;
   }
 };
 

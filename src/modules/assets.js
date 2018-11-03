@@ -5,7 +5,6 @@ import * as getters from '../getters/assets';
 import PersistentStorage from '../services/persistent-storage.js';
 
 const initialState = {
-  defaultAssetsIds: [],
   assets: {},
   hiddenAssetsIds: [],
   pending: false
@@ -24,9 +23,6 @@ const mutations = {
   },
   [types.FETCH_ASSETS_ERROR](state) {
     state.pending = false;
-  },
-  [types.SAVE_DEFAULT_ASSETS_IDS](state, { ids }) {
-    state.defaultAssetsIds = ids;
   },
   [types.HIDE_ASSET](state, id) {
     state.hiddenAssetsIds.push(id);

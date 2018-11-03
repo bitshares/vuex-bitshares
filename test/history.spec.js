@@ -1,31 +1,7 @@
 import API from '../src/services/api';
 
-const BTS_mock = {
-  symbol: 'BTS',
-  precision: 5,
-  id: '1.3.0'
-};
-
-const ETH_mock = {
-  symbol: 'OPEN.ETH',
-  precision: 6,
-  id: '1.3.850'
-};
-
-const USD_mock = {
-  symbol: 'USD',
-  precision: 4,
-  id: '1.3.121'
-};
-
-const BTC_mock = {
-  symbol: 'OPEN.BTC',
-  precision: 8,
-  id: '1.3.861'
-};
-
 test('base history for asset works', async () => {
-  const result = await API.History.getMarketStats(BTS_mock, USD_mock, [ETH_mock, BTC_mock]);
+  const result = await API.History.getMarketStats('BTS', 'USD', ['OPEN.ETH', 'OPEN.BTC']);
   expect(result).toEqual(
     { 'OPEN.ETH':
       { baseVolume: 11373.32657,

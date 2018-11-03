@@ -3,10 +3,10 @@ import { Aes, TransactionHelper, PrivateKey, ops } from 'bitsharesjs';
  * Return object with keys = id of each element of array (element.id)
  * @param {Array} array - array of data elements
  */
-export const arrayToObject = (array) => {
+export const arrayToObject = (array, field = 'id') => {
   const obj = {};
   array.forEach(item => {
-    obj[item.id] = item;
+    obj[item[field]] = item;
   });
   return obj;
 };

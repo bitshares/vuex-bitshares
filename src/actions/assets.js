@@ -2,6 +2,7 @@ import * as types from '../mutations';
 import API from '../services/api';
 import { arrayToObject } from '../utils';
 import config from '../../config';
+import defaultAssets from '../../assets';
 
 /**
  * Fetches assets objects from bitsharesjs-ws
@@ -42,13 +43,7 @@ export const fetchAssets = async (store, { assets }) => {
  to save default assets ids
  */
 export const fetchDefaultAssets = async (store) => {
-  const { commit } = store;
-  const { defaultAssetsNames } = config;
-  const assets = await fetchAssets(store, { assets: defaultAssetsNames });
-  if (assets) {
-    const ids = Object.keys(assets);
-    commit(types.SAVE_DEFAULT_ASSETS_IDS, { ids });
-  }
+  commit(types.FETCH_ASSETS_COMPLETE, { assets: arrayToObject(defaultAssets) });
 };
 
 export const hideAsset = async ({ commit }, assetId) => {

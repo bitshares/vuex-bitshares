@@ -1,4 +1,8 @@
 import { Apis } from 'bitsharesjs-ws';
+import defaultAssets from '../../../assets';
+import { arrayToObject } from '../../utils';
+
+const assets = arrayToObject(defaultAssets, 'symbol');
 
 const precisedCount = (cnt, prec) => cnt / (10 ** prec);
 
@@ -62,10 +66,15 @@ const getDailyStats = (base, quote, usdPrices, buckets) => {
   };
 };
 
-const getMarketStats = async (baseAsset, usdAsset, quotes) => {
-  quotes.unshift(usdAsset);
+const getMarketStats = async (base, fiat, quotes) => {
+  const baseAsset = assets[base];
+  const usdAsset = assets[fiat];
+
+  // We adding fiat symbol to the beginning of quotes to fetch it first for market
+  quotes.unshift(fiat);
+
   const [usdResult, ...others] = await Promise.all(
-    quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, quote))
+    quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, assets[quote]))
   );
 
   const usdFirstBucket = usdResult.data[0];

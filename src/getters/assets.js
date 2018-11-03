@@ -6,13 +6,6 @@ export function getAssets({ assets }) {
 }
 
 /**
- * Returns array with default assets ids
- */
-export function getDefaultAssetsIds({ defaultAssetsIds }) {
-  return defaultAssetsIds;
-}
-
-/**
  * Returns function to get asset by id
  */
 export function getAssetById({ assets }) {
