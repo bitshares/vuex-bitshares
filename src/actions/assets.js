@@ -18,6 +18,8 @@ export const fetchAssets = async (store, { assets }) => {
   commit(types.FETCH_ASSETS_REQUEST);
   const result = await API.Assets.fetch(filteredAssets);
 
+
+  // TODO: Better move it to getter (ex: getAssetsWithoutPrefixes)
   if (result) {
     // to remove prefix specified in config (e.x. ".OPEN")
     const prefix = config.removePrefix;
@@ -42,7 +44,7 @@ export const fetchAssets = async (store, { assets }) => {
  * Fetches default assets objects via fetchAssets function
  to save default assets ids
  */
-export const fetchDefaultAssets = async (store) => {
+export const fetchDefaultAssets = async ({ commit }) => {
   commit(types.FETCH_ASSETS_COMPLETE, { assets: arrayToObject(defaultAssets) });
 };
 

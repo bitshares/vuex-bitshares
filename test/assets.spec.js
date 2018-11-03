@@ -25,13 +25,11 @@ describe('Assets module: getters', () => {
 
   test('has correct initial state', () => {
     expect(store.state.assets.assets).toEqual({});
-    expect(store.state.assets.defaultAssetsIds).toEqual([]);
     expect(store.state.assets.pending).toBeFalsy();
   });
 
   test('has correct getters', () => {
     expect(store.getters['assets/getAssets']).toEqual({});
-    expect(store.getters['assets/getDefaultAssetsIds']).toEqual([]);
 
     const testAssets = {
       '1.3.0': {
@@ -41,9 +39,6 @@ describe('Assets module: getters', () => {
         symbol: 'BTS'
       }
     };
-
-    store.state.assets.defaultAssetsIds = ['1.3.0', '2.4.3'];
-    expect(store.getters['assets/getDefaultAssetsIds']).toEqual(['1.3.0', '2.4.3']);
 
     store.state.assets.assets = testAssets;
     expect(store.getters['assets/getAssets']).toEqual(testAssets);
@@ -75,10 +70,6 @@ describe('Assets module: mutations', () => {
     assets.mutations.FETCH_ASSETS_COMPLETE(state, { assets: testAsset });
     expect(state.pending).toBeFalsy();
     expect(state.assets).toEqual(testAsset);
-  });
-  test('SAVE_DEFAULT_ASSETS_IDS', () => {
-    assets.mutations.SAVE_DEFAULT_ASSETS_IDS(state, { ids: ['a', 'b', 'c'] });
-    expect(state.defaultAssetsIds).toEqual(['a', 'b', 'c']);
   });
 });
 
@@ -180,22 +171,52 @@ describe('Assets module: actions', () => {
     });
   });
 
-  test('fetches default assets', done => {
-    // todo: remove
+  test('fetches default assets', async () => {
     store.state.assets.assets = {};
     expect(store.state.assets.assets).toEqual({});
-    store.dispatch('assets/fetchDefaultAssets').then(() => {
-      const testDefaultAssetsIds = ['1.3.121', '1.3.861', '1.3.850', '1.3.858',
-        '1.3.859', '1.3.1999', '1.3.973', '1.3.0', '1.3.2418'];
-      const { defaultAssetsIds } = store.state.assets;
-      expect(defaultAssetsIds.length).toBe(9);
+    await store.dispatch('assets/fetchDefaultAssets');
 
-      const defaultIdsInState = Object.keys(store.state.assets.assets);
-      defaultAssetsIds.forEach(id => {
-        expect(testDefaultAssetsIds).toContain(id);
-        expect(defaultIdsInState).toContain(id);
-      });
-      done();
-    });
+    expect(Object.keys(store.state.assets.assets)).toEqual([ '1.3.861',
+      '1.3.850',
+      '1.3.0',
+      '1.3.121',
+      '1.3.113',
+      '1.3.858',
+      '1.3.1072',
+      '1.3.979',
+      '1.3.973',
+      '1.3.1042',
+      '1.3.1044',
+      '1.3.1999',
+      '1.3.1439',
+      '1.3.562',
+      '1.3.1325',
+      '1.3.1362',
+      '1.3.1413',
+      '1.3.105',
+      '1.3.106',
+      '1.3.958',
+      '1.3.1567',
+      '1.3.2241',
+      '1.3.2598',
+      '1.3.2635',
+      '1.3.2674',
+      '1.3.3841',
+      '1.3.1064',
+      '1.3.1892',
+      '1.3.3202',
+      '1.3.3615',
+      '1.3.3715',
+      '1.3.3896',
+      '1.3.4099',
+      '1.3.1653',
+      '1.3.1382',
+      '1.3.4198',
+      '1.3.4199',
+      '1.3.1896',
+      '1.3.2672',
+      '1.3.1895',
+      '1.3.1093',
+      '1.3.2790' ]);
   });
 });
