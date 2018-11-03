@@ -69,6 +69,8 @@ const getDailyStats = (base, quote, usdPrices, buckets) => {
   const change = priceDecrease * 100 / lastBucketPrices.close;
 
   return {
+    base: base.symbol,
+    ticker: quote.symbol,
     baseVolume: +baseVolume.toFixed(base.precision),
     usdVolume: +(baseVolume / usdPrices.median).toFixed(2),
     price: lastBucketPrices.close,
@@ -78,6 +80,9 @@ const getDailyStats = (base, quote, usdPrices, buckets) => {
 };
 
 const getMarketStats = async (base, fiat, quotes) => {
+  console.log('base:', base)
+  console.log('fiat:', fiat)
+  console.log('quotes:', quotes)
   const baseAsset = assets[base];
   const usdAsset = assets[fiat];
 

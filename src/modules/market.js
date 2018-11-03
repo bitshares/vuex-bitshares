@@ -7,14 +7,15 @@ const BtsMarket = API.Market.BTS;
 
 const actions = {
   async fetchMarketStats({ commit, dispatch }, base) {
-    commit(types.FETCH_MARKET_STATS_REQUEST);
+    commit(types.FETCH_MARKET_STATS_REQUEST, base);
     const quotes = config.defaultMarkets[base];
     try {
       const stats = await API.History.getMarketStats(base, 'USD', quotes);
-      commit(types.FETCH_MARKET_STATS_REQUEST_COMPLETE, stats);
-      dispatch('market/fetch7dMarketStats', base, { root: true });
+      commit(types.FETCH_MARKET_STATS_REQUEST_COMPLETE, { base, stats });
+      // dispatch('market/fetch7dMarketStats', base, { root: true });
       return stats;
     } catch (e) {
+      console.log(e)
       commit(types.FETCH_MARKET_STATS_REQUEST_ERROR, e);
       return false;
     }
@@ -22,7 +23,7 @@ const actions = {
   async fetch7dMarketStats({ commit }, base) {
     const quotes = config.defaultMarkets[base];
     const stats7 = await API.History.getMarketChanges7d(base, quotes);
-    commit(types.FETCH_MARKET_STATS_7D_COMPLETE, stats7);
+    commit(types.FETCH_MARKET_STATS_7D_COMPLETE, { base, stats7 });
     return stats7;
   },
   subscribeToMarket(store, { balances }) {
@@ -107,21 +108,21 @@ const mutations = {
   [types.UNSUB_FROM_MARKET_COMPLETE](state) {
     state.subscribed = false;
   },
-  [types.FETCH_MARKET_STATS_REQUEST](state) {
+  [types.FETCH_MARKET_STATS_REQUEST](state, base) {
     state.pending = true;
-    state.stats = {};
-    state.stats7d = {};
+    state.stats = { [base]: {} };
+    state.stats7d = { [base]: {} };
   },
-  [types.FETCH_MARKET_STATS_REQUEST_COMPLETE](state, stats) {
-    state.stats = stats;
+  [types.FETCH_MARKET_STATS_REQUEST_COMPLETE](state, { base, stats }) {
+    state.stats[base] = stats;
     state.pending = false;
   },
   [types.FETCH_MARKET_STATS_REQUEST_ERROR](state, error) {
     state.error = error;
     state.pending = false;
   },
-  [types.FETCH_MARKET_STATS_7D_COMPLETE](state, stats7d) {
-    state.stats7d = stats7d;
+  [types.FETCH_MARKET_STATS_7D_COMPLETE](state, { base, stats7d }) {
+    state.stats7d[base] = stats7d;
   }
 };
 

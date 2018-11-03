@@ -28,7 +28,6 @@ const actions = {
     const result = await API.Assets.fetch(filteredAssets);
 
     if (result) {
-      console.log(result)
       // to remove prefix specified in config (e.x. ".OPEN")
       const prefix = config.removePrefix;
       if (prefix) {
