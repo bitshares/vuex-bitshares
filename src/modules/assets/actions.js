@@ -2,7 +2,7 @@ import { types } from './mutations';
 import API from '../../services/api';
 import { arrayToObject } from '../../utils';
 import config from '../../../config';
-import defaultAssets from "../../../assets";
+import defaultAssets from '../../../assets';
 
 const actions = {
   hideAsset: async ({ commit }, assetId) => {

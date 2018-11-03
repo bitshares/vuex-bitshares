@@ -41,8 +41,6 @@ const getStatsForPeriodAndInteval = (base, quote, bucket, days) => {
       asset: quote,
       data: result
     };
-  }).catch((e) => {
-    console.log(e, 'in', base, quote);
   });
 };
 
@@ -59,15 +57,17 @@ const dailyStatsInHourBuckets = (base, quote) => {
 };
 
 const getDailyStats = (base, quote, usdPrices, buckets) => {
-  if (!buckets.length) return {
-    baseVolume: 0,
-    usdVolume: 0,
-    price: 0,
-    usdPrice: 0,
-    change24h: 0,
-    base: base.symbol,
-    ticker: quote.symbol
-  };
+  if (!buckets.length) {
+    return {
+      baseVolume: 0,
+      usdVolume: 0,
+      price: 0,
+      usdPrice: 0,
+      change24h: 0,
+      base: base.symbol,
+      ticker: quote.symbol
+    };
+  }
   const volume = buckets.reduce((vol, itm) => parseInt(itm.base_volume, 10) + vol, 0);
   const baseVolume = precisedCount(volume, base.precision);
   const firstBucket = buckets[0];
@@ -90,9 +90,6 @@ const getDailyStats = (base, quote, usdPrices, buckets) => {
 };
 
 const getMarketStats = async (base, fiat, quotes) => {
-  console.log('base:', base)
-  console.log('fiat:', fiat)
-  console.log('quotes:', quotes)
   const baseAsset = assets[base];
   const usdAsset = assets[fiat];
 
@@ -111,18 +108,19 @@ const getMarketStats = async (base, fiat, quotes) => {
       result[rawStat.asset.symbol] = getDailyStats(baseAsset, rawStat.asset, usdPrices, rawStat.data);
       return result;
     }, {});
-  } else {
-    const stats = await Promise.all(
-      quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, assets[quote]))
-    );
-    return stats.reduce((result, rawStat) => {
-      result[rawStat.asset.symbol] = getDailyStats(baseAsset, rawStat.asset, {
-        median: 1,
-        last: 1,
-      }, rawStat.data);
-      return result;
-    }, {});
   }
+
+  // Otherwise get stats for Fiat market market
+  const stats = await Promise.all(
+    quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, assets[quote]))
+  );
+  return stats.reduce((result, rawStat) => {
+    result[rawStat.asset.symbol] = getDailyStats(baseAsset, rawStat.asset, {
+      median: 1,
+      last: 1,
+    }, rawStat.data);
+    return result;
+  }, {});
 };
 
 const getMarketChanges7d = async (base, quotes) => {
@@ -145,7 +143,6 @@ const getMarketChanges7d = async (base, quotes) => {
     const change = priceDecrease * 100 / lastPrices.close;
     result[asset.symbol] = change.toFixed(2);
   });
-  console.log('!!!! result', result)
   return result;
 };
 

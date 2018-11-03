@@ -8,12 +8,16 @@ test('base history for asset works', async () => {
         usdVolume: 1087.28,
         price: 2077.7266698581866,
         usdPrice: 197.86,
-        change24h: '1.19' },
+        ticker: 'OPEN.ETH',
+        base: 'BTS',
+        change24h: 1.19 },
     'OPEN.BTC':
       { baseVolume: 2393342.4396,
         usdVolume: 228801.15,
         price: 66400.99192436131,
         usdPrice: 6323.38,
-        change24h: '0.33' }
+        ticker: 'OPEN.BTC',
+        base: 'BTS',
+        change24h: 0.33 }
     });
 });
