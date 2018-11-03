@@ -6,12 +6,13 @@ import config from '../../config';
 const BtsMarket = API.Market.BTS;
 
 const actions = {
-  async fetchMarketStats({ commit }, base) {
+  async fetchMarketStats({ commit, dispatch }, base) {
     commit(types.FETCH_MARKET_STATS_REQUEST);
     const quotes = config.defaultMarkets[base];
     try {
       const stats = await API.History.getMarketStats(base, 'USD', quotes);
       commit(types.FETCH_MARKET_STATS_REQUEST_COMPLETE, stats);
+      dispatch('market/fetch7dMarketStats', base, { root: true });
       return stats;
     } catch (e) {
       commit(types.FETCH_MARKET_STATS_REQUEST_ERROR, e);
