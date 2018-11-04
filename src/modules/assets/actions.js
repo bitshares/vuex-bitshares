@@ -49,7 +49,17 @@ const actions = {
 };
 
 actions.fetchDefaultAssets = async ({ commit }) => {
-  commit(types.FETCH_ASSETS_COMPLETE, { assets: arrayToObject(defaultAssets) });
+  const result = defaultAssets.slice()
+  const prefix = config.removePrefix;
+  if (prefix) {
+    result.forEach(asset => {
+      if (asset.symbol.substring(0, prefix.length) === prefix) {
+        asset.symbol = asset.symbol.slice(prefix.length);
+      }
+    });
+  }
+
+  commit(types.FETCH_ASSETS_COMPLETE, { assets: arrayToObject(result) });
 };
 
 export default actions;

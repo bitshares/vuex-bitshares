@@ -17,7 +17,6 @@ export const mutations = {
     Object.keys(assets).forEach(id => {
       Vue.set(state.assets, id, assets[id]);
     });
-    state.hiddenAssetsIds = PersistentStorage.getJSON('hidden_assets') || [];
     state.pending = false;
   },
   [types.FETCH_ASSETS_ERROR](state) {
