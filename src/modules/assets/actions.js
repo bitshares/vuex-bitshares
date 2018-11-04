@@ -49,7 +49,7 @@ const actions = {
 };
 
 actions.fetchDefaultAssets = async ({ commit }) => {
-  const result = defaultAssets.slice()
+  const result = defaultAssets.slice();
   const prefix = config.removePrefix;
   if (prefix) {
     result.forEach(asset => {
@@ -58,7 +58,7 @@ actions.fetchDefaultAssets = async ({ commit }) => {
       }
     });
   }
-  console.log(defaultAssets)
+  console.log(defaultAssets);
 
   commit(types.FETCH_ASSETS_COMPLETE, { assets: arrayToObject(result) });
 };

@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { getDefaultState } from './defaultState'
+import { getDefaultState } from './defaultState';
 
 export const types = {
   FETCH_PRICES_HISTORY_REQUEST: 'FETCH_PRICES_HISTORY_REQUEST',

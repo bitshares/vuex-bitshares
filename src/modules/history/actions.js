@@ -36,7 +36,7 @@ const actions = {
     });
   },
   resetHistory({ commit }) {
-    commit(types.RESET_HISTORY)
+    commit(types.RESET_HISTORY);
   }
 };
 

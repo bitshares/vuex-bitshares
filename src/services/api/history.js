@@ -76,7 +76,7 @@ const getDailyStats = (base, quote, usdPrices, buckets) => {
   const lastBucketPrices = getPricesFromBucket(base.precision, quote.precision, lastBucket);
 
   const priceDecrease = lastBucketPrices.close - firstBucketPrices.open;
-  const change = priceDecrease * 100 / lastBucketPrices.close;
+  const change = (priceDecrease * 100) / lastBucketPrices.close;
 
   return {
     base: base.symbol,
@@ -96,9 +96,8 @@ const getMarketStats = async (base, fiat, quotes) => {
   if (base !== fiat) {
     quotes.unshift(fiat);
 
-    const [usdResult, ...others] = await Promise.all(
-      quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, assets[quote]))
-    );
+    const [usdResult, ...others] = await Promise.all(quotes.map((quote) =>
+      dailyStatsInHourBuckets(baseAsset, assets[quote])));
 
     const usdFirstBucket = usdResult.data[0];
     const usdLastBucket = usdResult.data[usdResult.data.length - 1];
@@ -111,9 +110,7 @@ const getMarketStats = async (base, fiat, quotes) => {
   }
 
   // Otherwise get stats for Fiat market market
-  const stats = await Promise.all(
-    quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, assets[quote]))
-  );
+  const stats = await Promise.all(quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, assets[quote])));
   return stats.reduce((result, rawStat) => {
     result[rawStat.asset.symbol] = getDailyStats(baseAsset, rawStat.asset, {
       median: 1,
@@ -125,9 +122,8 @@ const getMarketStats = async (base, fiat, quotes) => {
 
 const getMarketChanges7d = async (base, quotes) => {
   const baseAsset = assets[base];
-  const rawData = await Promise.all(
-    quotes.map((quote) => hourlyStatsInDailyBuckets(baseAsset, assets[quote]))
-  );
+  const rawData = await Promise.all(quotes.map((quote) =>
+    hourlyStatsInDailyBuckets(baseAsset, assets[quote])));
 
   const result = {};
   rawData.forEach(({ asset, data }) => {
@@ -140,7 +136,7 @@ const getMarketChanges7d = async (base, quotes) => {
     const firstPrices = getPricesFromBucket(baseAsset.precision, asset.precision, firstBucket);
     const lastPrices = getPricesFromBucket(baseAsset.precision, asset.precision, lastBucket);
     const priceDecrease = lastPrices.close - firstPrices.open;
-    const change = priceDecrease * 100 / lastPrices.close;
+    const change = (priceDecrease * 100) / lastPrices.close;
     result[asset.symbol] = change.toFixed(2);
   });
   return result;
