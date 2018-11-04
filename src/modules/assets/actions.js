@@ -2,6 +2,7 @@ import { types } from './mutations';
 import API from '../../services/api';
 import { arrayToObject } from '../../utils';
 import config from '../../../config';
+import defaultAssets from '../../../assets';
 
 const actions = {
   hideAsset: async ({ commit }, assetId) => {
@@ -47,14 +48,19 @@ const actions = {
   }
 };
 
-actions.fetchDefaultAssets = async (store) => {
-  const { commit } = store;
-  const { defaultAssetsNames } = config;
-  const assets = await actions.fetchAssets(store, { assets: defaultAssetsNames });
-  if (assets) {
-    const ids = Object.keys(assets);
-    commit(types.SAVE_DEFAULT_ASSETS_IDS, { ids });
+actions.fetchDefaultAssets = async ({ commit }) => {
+  const result = defaultAssets.slice();
+  const prefix = config.removePrefix;
+  if (prefix) {
+    result.forEach(asset => {
+      if (asset.symbol.substring(0, prefix.length) === prefix) {
+        asset.symbol = asset.symbol.slice(prefix.length);
+      }
+    });
   }
+  console.log(defaultAssets);
+
+  commit(types.FETCH_ASSETS_COMPLETE, { assets: arrayToObject(result) });
 };
 
 export default actions;

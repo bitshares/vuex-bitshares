@@ -1,10 +1,31 @@
 import Vue from 'vue';
 import * as types from '../mutations';
 import API from '../services/api';
+import config from '../../config';
 
-const BtsMarket = API.Market['1.3.0'];
+const BtsMarket = API.Market.BTS;
 
 const actions = {
+  async fetchMarketStats({ commit, dispatch }, base) {
+    commit(types.FETCH_MARKET_STATS_REQUEST, base);
+    const quotes = config.defaultMarkets[base];
+    try {
+      const stats = await API.History.getMarketStats(base, 'USD', quotes);
+      commit(types.FETCH_MARKET_STATS_REQUEST_COMPLETE, { base, stats });
+      dispatch('market/fetch7dMarketStats', base, { root: true });
+      return stats;
+    } catch (e) {
+      console.log(e);
+      commit(types.FETCH_MARKET_STATS_REQUEST_ERROR, { base });
+      return false;
+    }
+  },
+  async fetch7dMarketStats({ commit }, base) {
+    const quotes = config.defaultMarkets[base];
+    const stats7d = await API.History.getMarketChanges7d(base, quotes);
+    commit(types.FETCH_MARKET_STATS_7D_COMPLETE, { base, stats7d });
+    return stats7d;
+  },
   subscribeToMarket(store, { balances }) {
     const { commit } = store;
     const assetsIds = Object.keys(balances);
@@ -57,9 +78,12 @@ const getters = {
       return state.prices[assetId] || 0;
     };
   },
+  getMarketBases: state => state.marketBases,
+  getMarketStats: state => state.stats,
+  getMarketStats7d: state => state.stats7d,
   isFetching: state => state.pending,
   isError: state => state.error,
-  isSubscribed: state => state.subscribed
+  isSubscribed: state => state.subscribed,
 };
 
 const initialState = {
@@ -68,7 +92,9 @@ const initialState = {
   baseAssetId: null,
   subscribed: false,
   prices: {},
-  baseId: '1.3.0'
+  baseId: '1.3.0',
+  stats: {},
+  marketBases: config.marketBases
 };
 
 const mutations = {
@@ -80,6 +106,27 @@ const mutations = {
   },
   [types.UNSUB_FROM_MARKET_COMPLETE](state) {
     state.subscribed = false;
+  },
+  [types.FETCH_MARKET_STATS_REQUEST](state, base) {
+    const list = (state.stats[base] && state.stats[base].list) || {};
+    state.stats = {
+      ...state.stats,
+      [base]: { list, fetching: true }
+    };
+  },
+  [types.FETCH_MARKET_STATS_REQUEST_COMPLETE](state, { base, stats }) {
+    state.stats[base].list = stats;
+    state.stats[base].fetching = false;
+  },
+  [types.FETCH_MARKET_STATS_REQUEST_ERROR](state, { base }) {
+    state.stats[base].error = true;
+    state.stats[base].fetching = false;
+  },
+  [types.FETCH_MARKET_STATS_7D_COMPLETE](state, { base, stats7d }) {
+    Object.keys(stats7d).forEach(quote => {
+      const quoteStats = state.stats[base].list[quote];
+      if (quoteStats) quoteStats.change7d = stats7d[quote];
+    });
   }
 };
 

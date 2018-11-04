@@ -34,6 +34,9 @@ const actions = {
     }).catch((err) => {
       console.log(err);
     });
+  },
+  resetHistory({ commit }) {
+    commit(types.RESET_HISTORY);
   }
 };
 

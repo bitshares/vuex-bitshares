@@ -5,12 +5,8 @@ export const types = {
   FETCH_ASSETS_REQUEST: 'FETCH_ASSETS_REQUEST',
   FETCH_ASSETS_COMPLETE: 'FETCH_ASSETS_COMPLETE',
   FETCH_ASSETS_ERROR: 'FETCH_ASSETS_ERROR',
-  FETCH_DEFAULT_ASSETS_REQUEST: 'FETCH_DEFAULT_ASSETS_REQUEST',
-  FETCH_DEFAULT_ASSETS_COMPLETE: 'FETCH_DEFAULT_ASSETS_COMPLETE',
-  FETCH_DEFAULT_ASSETS_ERROR: 'FETCH_DEFAULT_ASSETS_ERROR',
   HIDE_ASSET: 'HIDE_ASSET',
   SHOW_ASSET: 'SHOW_ASSET',
-  SAVE_DEFAULT_ASSETS_IDS: 'SAVE_DEFAULT_ASSETS_IDS'
 };
 
 export const mutations = {
@@ -21,14 +17,10 @@ export const mutations = {
     Object.keys(assets).forEach(id => {
       Vue.set(state.assets, id, assets[id]);
     });
-    state.hiddenAssetsIds = PersistentStorage.getJSON('hidden_assets') || [];
     state.pending = false;
   },
   [types.FETCH_ASSETS_ERROR](state) {
     state.pending = false;
-  },
-  [types.SAVE_DEFAULT_ASSETS_IDS](state, { ids }) {
-    state.defaultAssetsIds = ids;
   },
   [types.HIDE_ASSET](state, id) {
     state.hiddenAssetsIds.push(id);
