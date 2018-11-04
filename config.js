@@ -35,6 +35,7 @@ const config = {
   marketBases: ["OPEN.BTC", "OPEN.ETH", "BTS", "USD", "CNY"],
   defaultMarkets: { 'OPEN.BTC': [
     "BTS",
+    "USD",
     "OPEN.ETH",
     "OPEN.DASH",
     "BLOCKPAY",
@@ -42,16 +43,8 @@ const config = {
     "OPEN.STEEM",
     "OPEN.USDT",
     "OPEN.MAID",
-  ], 'OPEN.ETH': [
-    "BTS",
-    "OPEN.BTC",
-    "OPEN.DASH",
-    "BLOCKPAY",
-    "OPEN.DGD",
-    "OPEN.STEEM",
-    "OPEN.USDT",
-    "OPEN.MAID",
   ], 'BTS': [
+    "USD",
     "OPEN.ETH",
     "OPEN.EOS",
     "PPY",
