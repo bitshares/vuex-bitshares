@@ -96,8 +96,9 @@ const getMarketStats = async (base, fiat, quotes) => {
   if (base !== fiat) {
     quotes.unshift(fiat);
 
-    const [usdResult, ...others] = await Promise.all(quotes.map((quote) =>
-      dailyStatsInHourBuckets(baseAsset, assets[quote])));
+    const [usdResult, ...others] = await Promise.all(
+      quotes.map((quote) => dailyStatsInHourBuckets(baseAsset, assets[quote]))
+    );
 
     const usdFirstBucket = usdResult.data[0];
     const usdLastBucket = usdResult.data[usdResult.data.length - 1];
@@ -122,8 +123,9 @@ const getMarketStats = async (base, fiat, quotes) => {
 
 const getMarketChanges7d = async (base, quotes) => {
   const baseAsset = assets[base];
-  const rawData = await Promise.all(quotes.map((quote) =>
-    hourlyStatsInDailyBuckets(baseAsset, assets[quote])));
+  const rawData = await Promise.all(quotes.map(
+    quote => hourlyStatsInDailyBuckets(baseAsset, assets[quote])
+  ));
 
   const result = {};
   rawData.forEach(({ asset, data }) => {
