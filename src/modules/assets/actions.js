@@ -58,6 +58,7 @@ actions.fetchDefaultAssets = async ({ commit }) => {
       }
     });
   }
+  console.log(defaultAssets)
 
   commit(types.FETCH_ASSETS_COMPLETE, { assets: arrayToObject(result) });
 };
