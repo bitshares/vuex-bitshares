@@ -77,7 +77,9 @@ class Market {
     }
     return false;
   }
-
+  getBook(quote) {
+    return this.markets[quote.id].orders;
+  }
   getOrdersArray(pays, receives) {
     if (pays === this.base.id) {
       if (this.isSubscribed(receives)) {
