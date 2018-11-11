@@ -24,20 +24,24 @@ const calcOrderRate = (order) => {
 };
 
 const loadLimitOrders = async (baseId, quoteId, limit = 500) => {
-  const orders = await Apis.instance().db_api().exec(
-    'get_limit_orders',
-    [baseId, quoteId, limit]
-  );
-  const buyOrders = [];
-  const sellOrders = [];
-  orders.forEach((order) => {
-    if (order.sell_price.base.asset_id === baseId) {
-      buyOrders.push(order);
-    } else {
-      sellOrders.push(order);
-    }
-  });
-  return { buyOrders, sellOrders };
+  try {
+    const orders = await Apis.instance().db_api().exec(
+      'get_limit_orders',
+      [baseId, quoteId, limit]
+    );
+    const buyOrders = [];
+    const sellOrders = [];
+    orders.forEach((order) => {
+      if (order.sell_price.base.asset_id === baseId) {
+        buyOrders.push(order);
+      } else {
+        sellOrders.push(order);
+      }
+    });
+    return { buyOrders, sellOrders };
+  } catch (e) {
+    console.log('CATCHED!',e, baseId, quoteId)
+  }
 };
 
 class Market {
@@ -52,7 +56,7 @@ class Market {
   }
 
   fetchStats(quotes) {
-    const quotePromise = quote => Apis.instance().db_api().exec('get_ticker', [this.base, quote]);
+    const quotePromise = quote => Apis.instance().db_api().exec('get_ticker', [this.base.symbol, quote]);
     return Promise.all(quotes.map(quotePromise));
   }
 
@@ -61,12 +65,12 @@ class Market {
   }
 
   getCallback(pays, receives) {
-    if (pays === this.base) {
+    if (pays === this.base.id) {
       if (this.isSubscribed(receives)) {
         return this.markets[receives].callback;
       }
     }
-    if (receives === this.base) {
+    if (receives === this.base.id) {
       if (this.isSubscribed(pays)) {
         return this.markets[pays].callback;
       }
@@ -75,12 +79,12 @@ class Market {
   }
 
   getOrdersArray(pays, receives) {
-    if (pays === this.base) {
+    if (pays === this.base.id) {
       if (this.isSubscribed(receives)) {
         return this.markets[receives].orders.buy;
       }
     }
-    if (receives === this.base) {
+    if (receives === this.base.id) {
       if (this.isSubscribed(pays)) {
         return this.markets[pays].orders.sell;
       }
@@ -172,8 +176,8 @@ class Market {
   }
 
   async subscribeToMarket(assetId, callback) {
-    if (assetId === this.base) return;
-    const { buyOrders, sellOrders } = await loadLimitOrders(this.base, assetId);
+    if (assetId === this.base.id) return;
+    const { buyOrders, sellOrders } = await loadLimitOrders(this.base.id, assetId);
     this.setDefaultObjects(assetId);
     // console.log('setting default: ' + assetId + ' : ', this.markets[assetId]);
     this.markets[assetId].orders.buy = buyOrders;
@@ -251,7 +255,7 @@ class Market {
             amount: toSell
           },
           receive: {
-            asset_id: this.base,
+            asset_id: this.base.id,
             amount: toReceive
           },
           userId,
@@ -275,7 +279,7 @@ class Market {
         if (!toReceive) return;
         const orderObject = {
           sell: {
-            asset_id: this.base,
+            asset_id: this.base.id,
             amount: toSellBase
           },
           receive: {
@@ -298,8 +302,12 @@ class Market {
 }
 
 const markets = {};
-config.marketBases.forEach(item => {
-  markets[item] = new Market(item);
-});
-
-export default markets;
+export default (baseAsset) => {
+  if (markets[baseAsset.id]) {
+    return markets[baseAsset.id];
+  } else {
+    const baseMarket = new Market(baseAsset);
+    markets[baseAsset.id] = baseMarket;
+    return markets[baseAsset.id];
+  }
+}
