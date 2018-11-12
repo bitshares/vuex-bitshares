@@ -31,6 +31,8 @@ const config = {
   },
   referrer: 'trfnd',
   faucetUrl: 'https://faucet.trusty.fund/signup',
+  bbfFaucetUrl: 'https://faucet.bitshares.eu/onboarding',
+  bbfRegisterationUser: '1.2.450921',
   removePrefix: 'OPEN.',
   marketBases: ["OPEN.BTC", "OPEN.ETH", "BTS", "USD", "CNY"],
   defaultMarkets: { 'OPEN.BTC': [
