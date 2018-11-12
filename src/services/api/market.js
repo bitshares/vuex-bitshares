@@ -23,7 +23,7 @@ const calcOrderRate = (order) => {
   return baseAmount / quoteAmount;
 };
 
-const loadLimitOrders = async (baseId, quoteId, limit = 500) => {
+const loadLimitOrders = async (baseId, quoteId, limit = 200) => {
   try {
     const orders = await Apis.instance().db_api().exec(
       'get_limit_orders',

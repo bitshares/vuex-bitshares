@@ -1,4 +1,3 @@
-import Vue from 'vue';
 import * as types from '../mutations';
 import API from '../services/api';
 import config from '../../config';
@@ -41,6 +40,15 @@ const actions = {
     } else {
       commit(types.SUB_TO_MARKET_ERROR, "no such market");
     }
+  },
+  unsubscribeFromMarket(store) {
+    const { commit, getters } = store;
+    if (getters.isSubscribed) {
+      const { base, quote } = getters.getMarketAssts;
+      const market = API.Market(base);
+      market.unsubscribeFromMarket(quote.id);
+      commit(types.UNSUB_FROM_MARKET_COMPLETE);
+    }
   }
 };
 
@@ -51,6 +59,10 @@ const getters = {
   isFetching: state => state.pending,
   isError: state => state.error,
   isSubscribed: state => state.subscribed,
+  getMarketAssts: state => ({
+    base: state.baseAsset,
+    quote: state.quoteAsset
+  }),
   getOrderBook: state => {
     if (state.bookLastUpdated) {
       return API.Market(state.baseAsset).getBook(state.quoteAsset)
