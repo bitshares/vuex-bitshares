@@ -31,14 +31,14 @@ const actions = {
     if (market) {
       const quoteAsset = rootGetters['assets/getAssetBySymbol'](quoteSymbol);
       commit(types.SUB_TO_MARKET_REQUEST, { baseAsset, quoteAsset });
-      console.log('ON SUBSCRIBE!', getters)
+      console.log('ON SUBSCRIBE!', getters);
       await market.subscribeToMarket(quoteAsset.id, (update) => {
         commit(types.UPDATE_MARKET_BOOK, new Date());
         console.log('Receive update', update, getters.getOrderBook);
       });
       commit(types.SUB_TO_MARKET_COMPLETE);
     } else {
-      commit(types.SUB_TO_MARKET_ERROR, "no such market");
+      commit(types.SUB_TO_MARKET_ERROR, 'no such market');
     }
   },
   unsubscribeFromMarket(store) {
@@ -65,8 +65,12 @@ const getters = {
   }),
   getOrderBook: state => {
     if (state.bookLastUpdated) {
-      return API.Market(state.baseAsset).getBook(state.quoteAsset)
+      return API.Market(state.baseAsset).getBook(state.quoteAsset);
     }
+    return {
+      buyOrders: [],
+      sellOrders: []
+    };
   }
 };
 

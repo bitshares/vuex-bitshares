@@ -2,8 +2,6 @@ import { Apis } from 'bitsharesjs-ws';
 import * as utils from '../../utils';
 import listener from './chain-listener';
 import Subscriptions from './subscriptions';
-import config from '../../../config';
-
 
 const findOrder = (orderId) => {
   return (order) => orderId === order.id;
@@ -40,7 +38,11 @@ const loadLimitOrders = async (baseId, quoteId, limit = 200) => {
     });
     return { buyOrders, sellOrders };
   } catch (e) {
-    console.log('CATCHED!',e, baseId, quoteId)
+    console.log('CATCHED!', e, baseId, quoteId);
+    return {
+      buyOrders: [],
+      sellOrders: []
+    };
   }
 };
 
@@ -77,9 +79,11 @@ class Market {
     }
     return false;
   }
+
   getBook(quote) {
     return this.markets[quote.id].orders;
   }
+
   getOrdersArray(pays, receives) {
     if (pays === this.base.id) {
       if (this.isSubscribed(receives)) {
@@ -307,9 +311,8 @@ const markets = {};
 export default (baseAsset) => {
   if (markets[baseAsset.id]) {
     return markets[baseAsset.id];
-  } else {
-    const baseMarket = new Market(baseAsset);
-    markets[baseAsset.id] = baseMarket;
-    return markets[baseAsset.id];
   }
-}
+  const baseMarket = new Market(baseAsset);
+  markets[baseAsset.id] = baseMarket;
+  return markets[baseAsset.id];
+};

@@ -27,7 +27,7 @@ const getters = {
     return hiddenAssetsIds;
   },
 
-  getAssetBySymbol: ({ assetsByName }) =>  {
+  getAssetBySymbol: ({ assetsByName }) => {
     return (name) => ((assetsByName && assetsByName[name]) ? assetsByName[name] : {
       symbol: '...',
       precision: 1
