@@ -13,7 +13,7 @@ export const mutations = {
   [types.FETCH_ASSETS_REQUEST](state) {
     state.pending = true;
   },
-  [types.FETCH_ASSETS_COMPLETE](state, { assetsById, assetsByName }) {
+  [types.FETCH_ASSETS_COMPLETE](state, { assetsById = {}, assetsByName = {} }) {
     Object.keys(assetsById).forEach(id => {
       Vue.set(state.assets, id, assetsById[id]);
     });
