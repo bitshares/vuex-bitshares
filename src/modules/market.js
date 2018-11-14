@@ -1,6 +1,7 @@
 import * as types from '../mutations';
 import API from '../services/api';
 import config from '../../config';
+import Vue from 'vue';
 
 
 const actions = {
@@ -9,7 +10,7 @@ const actions = {
     const quotes = config.defaultMarkets[base];
     try {
       const stats = await API.History.getMarketStats(base, 'USD', quotes);
-      commit(types.FETCH_MARKET_STATS_REQUEST_COMPLETE, { base, stats });
+      await commit(types.FETCH_MARKET_STATS_REQUEST_COMPLETE, { base, stats });
       dispatch('market/fetch7dMarketStats', base, { root: true });
       return stats;
     } catch (e) {
@@ -104,7 +105,7 @@ const mutations = {
   [types.FETCH_MARKET_STATS_7D_COMPLETE](state, { base, stats7d }) {
     Object.keys(stats7d).forEach(quote => {
       const quoteStats = state.stats[base].list[quote];
-      if (quoteStats) quoteStats.change7d = stats7d[quote];
+      if (quoteStats) Vue.set(quoteStats, 'change7d', parseInt(stats7d[quote]));
     });
   },
   [types.SUB_TO_MARKET_REQUEST](state, { baseAsset, quoteAsset }) {
