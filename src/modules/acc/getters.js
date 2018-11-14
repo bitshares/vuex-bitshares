@@ -4,6 +4,10 @@ const getters = {
   getAccountUserId: state => {
     return state.userId;
   },
+  getBrainkey: state => {
+    if (!state.wallet.aesPrivate) return null;
+    return state.wallet.aesPrivate.decryptHexToText(state.wallet.encryptedBrainkey);
+  },
   getCurrentUserName: state => {
     return state.userData && state.userData.account.name;
   },
@@ -17,7 +21,7 @@ const getters = {
     return nonZeroBalances;
   },
   isLocked: state => {
-    return !state.aesPrivate && !state.keys;
+    return !state.wallet.aesPrivate && !state.keys;
   },
   isLoggedIn: state => !!state.userId,
   getKeys: state => {

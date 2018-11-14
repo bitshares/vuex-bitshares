@@ -8,7 +8,8 @@ export const types = {
   ACCOUNT_LOGOUT: 'ACCOUNT_LOGOUT',
   ACCOUNT_LOCK_WALLET: 'ACCOUNT_LOCK_WALLET',
   ACCOUNT_UNLOCK_WALLET: 'ACCOUNT_UNLOCK_WALLET',
-  FETCH_CURRENT_USER: 'FETCH_CURRENT_USER'
+  FETCH_CURRENT_USER: 'FETCH_CURRENT_USER',
+  STORE_BACKUP_DATE: 'STORE_BACKUP_DATE'
 };
 
 export const mutations = {
@@ -37,13 +38,16 @@ export const mutations = {
     Object.assign(state, getDefaultState());
   },
   [types.ACCOUNT_LOCK_WALLET]: (state) => {
-    state.aesPrivate = null;
+    state.wallet.aesPrivate = null;
     state.keys = null;
   },
   [types.ACCOUNT_UNLOCK_WALLET]: (state, aesPrivate) => {
-    state.aesPrivate = aesPrivate;
+    state.wallet.aesPrivate = aesPrivate;
   },
   [types.FETCH_CURRENT_USER]: (state, { data }) => {
     Vue.set(state, 'userData', data);
+  },
+  [types.STORE_BACKUP_DATE]: (state, date) => {
+    state.backupDate = date;
   }
 };
