@@ -1,4 +1,4 @@
-import { key } from 'bitsharesjs';
+import { key, PrivateKey } from 'bitsharesjs';
 
 const getters = {
   getAccountUserId: state => {
