@@ -67,7 +67,7 @@ describe('Assets module: mutations', () => {
       a: { name: 'bts' },
       b: { name: 'zxy' },
     };
-    assets.mutations.FETCH_ASSETS_COMPLETE(state, { assets: testAsset });
+    assets.mutations.FETCH_ASSETS_COMPLETE(state, { assetsById: testAsset });
     expect(state.pending).toBeFalsy();
     expect(state.assets).toEqual(testAsset);
   });

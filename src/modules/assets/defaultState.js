@@ -5,6 +5,7 @@ export const getDefaultState = () => {
   return {
     defaultAssetsIds: Object.keys(arrayToObject(defaultAssets)),
     assets: {},
+    assetsByName: {},
     hiddenAssetsIds: [],
     pending: false
   };

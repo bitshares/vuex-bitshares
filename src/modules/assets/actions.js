@@ -38,10 +38,11 @@ const actions = {
         });
       }
 
-      const composedResult = arrayToObject(result);
+      const assetsById = arrayToObject(result);
+      const assetsByName = arrayToObject(result, 'symbol');
 
-      commit(types.FETCH_ASSETS_COMPLETE, { assets: composedResult });
-      return composedResult;
+      commit(types.FETCH_ASSETS_COMPLETE, { assetsById, assetsByName });
+      return assetsById;
     }
     commit(types.FETCH_ASSETS_ERROR);
     return null;
@@ -58,8 +59,9 @@ actions.fetchDefaultAssets = async ({ commit }) => {
       }
     });
   }
-
-  commit(types.FETCH_ASSETS_COMPLETE, { assets: arrayToObject(result) });
+  const assetsById = arrayToObject(result);
+  const assetsByName = arrayToObject(result, 'symbol');
+  commit(types.FETCH_ASSETS_COMPLETE, { assetsById, assetsByName });
 };
 
 export default actions;
