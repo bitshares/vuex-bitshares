@@ -24,6 +24,13 @@ const getters = {
     return !state.wallet.aesPrivate && !state.keys;
   },
   isLoggedIn: state => !!state.userId,
+  isValidPassword = state => {
+    return password => {
+      const passwordPrivate = PrivateKey.fromSeed(password);
+      const passwordPubkey = passwordPrivate.toPublicKey().toPublicKeyString();
+      return passwordPubkey === state.wallet.passwordPubkey;
+    };
+  },
   getKeys: state => {
     if (state.keys && state.keys.active && state.keys.owner) {
       return state.keys;
