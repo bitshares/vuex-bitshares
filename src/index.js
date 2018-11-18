@@ -7,6 +7,7 @@ import market from './modules/market';
 import openledger from './modules/openledger';
 import history from './modules/history';
 import acc from './modules/acc';
+import stats from './modules/stats';
 import plugins from './plugins';
 
 export default {
@@ -19,7 +20,8 @@ export default {
     market,
     openledger,
     history,
-    acc
+    acc,
+    stats
   },
   plugins
 };
