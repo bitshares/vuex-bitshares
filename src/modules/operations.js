@@ -56,7 +56,7 @@ const actions = {
     if (type === 'transfer' || type === 'fill_order' || type === 'cancel_order') {
       // update current user balances
       // todo : maybe refactor to modify balances directly
-      store.dispatch('account/fetchCurrentUser', null, { root: true });
+      store.dispatch('acc/fetchCurrentUser', null, { root: true });
     }
     store.dispatch('assets/fetchAssets', { assets: parsedData.assetsIds }, { root: true });
     commit(types.ADD_USER_OPERATION, {

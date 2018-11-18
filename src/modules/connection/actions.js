@@ -16,7 +16,7 @@ const actions = {
         commit(types.WS_DISCONNECTED);
         active = false;
         await API.Connection.disconnect();
-        this.initConnection({ commit, getters }, true);
+        actions.initConnection({ commit, getters }, true);
       }
       if (!wsConnected && (status === 'realopen' || status === 'reconnect')) {
         commit(types.WS_CONNECTED);

@@ -156,13 +156,17 @@ const actions = {
     }
   },
 
+  storeBackupDate: ({ commit }) => {
+    commit(types.STORE_BACKUP_DATE, new Date());
+  },
+
   /**
    * Unlocks user's wallet via provided password
    * @param {string} password - user password
    */
   unlockWallet: ({ commit, state }, password) => {
     const passwordAes = Aes.fromSeed(password);
-    const encryptionPlainbuffer = passwordAes.decryptHexToBuffer(state.encryptionKey);
+    const encryptionPlainbuffer = passwordAes.decryptHexToBuffer(state.wallet.encryptionKey);
     const aesPrivate = Aes.fromSeed(encryptionPlainbuffer);
     commit(types.ACCOUNT_UNLOCK_WALLET, aesPrivate);
   },

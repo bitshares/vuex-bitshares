@@ -25,6 +25,13 @@ const getters = {
 
   getHideList: ({ hiddenAssetsIds }) => {
     return hiddenAssetsIds;
+  },
+
+  getAssetBySymbol: ({ assetsByName }) => {
+    return (name) => ((assetsByName && assetsByName[name]) ? assetsByName[name] : {
+      symbol: '...',
+      precision: 1
+    });
   }
 };
 

@@ -102,7 +102,7 @@ export const getAccountIdByBrainkey = async brainkey => {
   return getAccountIdByOwnerPubkey(ownerPubkey);
 };
 
-export const createAccount = async ({ name, activeKey, ownerKey, email }) => {
+export const createAccountTrusty = async ({ name, activeKey, ownerKey, email }) => {
   const { faucetUrl } = config;
   try {
     const body = {
@@ -138,6 +138,49 @@ export const createAccount = async ({ name, activeKey, ownerKey, email }) => {
   }
 };
 
+export const createAccount = async ({ name, ownerKey, activeKey }) => {
+  const { bbfFaucetUrl, bbfRegisterationUser } = config;
+  try {
+    const response = await fetch(bbfFaucetUrl + '/api/v1/accounts', {
+      method: 'post',
+      mode: 'cors',
+      headers: {
+        Accept: 'application/json',
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        account: {
+          name,
+          owner_key: ownerKey.toPublicKey().toPublicKeyString('BTS'),
+          active_key: activeKey.toPublicKey().toPublicKeyString('BTS'),
+          memo_key: activeKey.toPublicKey().toPublicKeyString('BTS'),
+          refcode: null,
+          bbfRegisterationUser
+        }
+      })
+    });
+    const result = await response.json();
+    if (!result || (result && result.error)) {
+      return {
+        success: false,
+        error: result.error.base[0]
+      };
+    }
+    const { account } = result;
+    const fullAccount = await Apis.instance().db_api().exec('get_account_by_name', [account.name]);
+    const { id } = fullAccount;
+
+    return {
+      success: true,
+      id
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Account creation error'
+    };
+  }
+};
 
 export const createAccountBrainkey = async ({ name, brainkey, email }) => {
   const activeKey = key.get_brainPrivateKey(brainkey, ACTIVE_KEY_INDEX);

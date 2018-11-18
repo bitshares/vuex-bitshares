@@ -12,6 +12,7 @@ export const getDefaultState = () => {
       encryptionKey: null,
       aesPrivate: null
     },
-    userData: null
+    userData: null,
+    backupDate: null
   };
 };
