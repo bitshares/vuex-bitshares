@@ -45,9 +45,6 @@ class StatsInfo {
           ? '+' + (((nowOpen - yearAgoOpen) / yearAgoOpen) * 100).toFixed(2)
           : '-' + (((yearAgoOpen - nowOpen) / yearAgoOpen) * 100).toFixed(2);
 
-        console.log(closeYearDiff);
-        console.log(openYearDiff);
-
         const stats = {
           marketcap,
           closeYearDiff,
