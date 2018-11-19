@@ -67,7 +67,7 @@ export const getFiatMultiplier = async (base, fiat) => {
     const firstBucket = fiatBuckets[0];
     const lastBucket = fiatBuckets[fiatBuckets.length - 1];
     const { open } = getPricesFromBucket(base.precision, fiat.precision, firstBucket);
-    const { close } = getPricesFromBucket(base.precision, fiat.precision, fiatBuckets[lastBucket]);
+    const { close } = getPricesFromBucket(base.precision, fiat.precision, lastBucket);
     const medianPrice = (open + close) / 2;
 
     result.median = medianPrice;
