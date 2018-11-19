@@ -5,11 +5,16 @@ import config from '../../config';
 
 
 const actions = {
-  async fetchMarketStats({ commit, dispatch }, base) {
+  async fetchMarketStats({ commit, dispatch, rootGetters }, base) {
     commit(types.FETCH_MARKET_STATS_REQUEST, base);
     const quotes = config.defaultMarkets[base];
     try {
-      const stats = await API.History.getMarketStats(base, 'USD', quotes);
+      const baseAsset = rootGetters['assets/getAssetBySymbol'](base);
+      console.log('Fetching stats for base!', baseAsset, base);
+      const fiatAsset = rootGetters['assets/getAssetBySymbol']('USD');
+      const market = API.Market(baseAsset);
+      const stats = await market.fetchStats(quotes, fiatAsset);
+      console.log('Stats!!!', stats);
       await commit(types.FETCH_MARKET_STATS_REQUEST_COMPLETE, { base, stats });
       dispatch('market/fetch7dMarketStats', base, { root: true });
       return stats;

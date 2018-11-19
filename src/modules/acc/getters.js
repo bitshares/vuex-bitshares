@@ -21,7 +21,7 @@ const getters = {
     return nonZeroBalances;
   },
   isLocked: state => {
-    return !state.wallet.aesPrivate && (!state.keys.active || !state.keys.owner);;
+    return !state.wallet.aesPrivate && (!state.keys.active || !state.keys.owner);
   },
   isLoggedIn: state => !!state.userId,
   isValidPassword: state => {
