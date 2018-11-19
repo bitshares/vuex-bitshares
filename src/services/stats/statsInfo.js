@@ -39,11 +39,14 @@ class StatsInfo {
         } = changeResponse.data.Data[changeResponse.data.Data.length - 1];
 
         const closeYearDiff = nowClose > yearAgoClose
-          ? '+' + ((nowClose / yearAgoClose) * 100).toFixed(2)
-          : '-' + ((yearAgoClose / nowClose) * 100).toFixed(2);
+          ? '+' + (((nowClose - yearAgoClose) / yearAgoClose) * 100).toFixed(2)
+          : '-' + (((yearAgoClose - nowClose) / yearAgoClose) * 100).toFixed(2);
         const openYearDiff = nowOpen > yearAgoOpen
-          ? '+' + ((nowOpen / yearAgoOpen) * 100).toFixed(2)
-          : '-' + ((yearAgoOpen / nowOpen) * 100).toFixed(2);
+          ? '+' + (((nowOpen - yearAgoOpen) / yearAgoOpen) * 100).toFixed(2)
+          : '-' + (((yearAgoOpen - nowOpen) / yearAgoOpen) * 100).toFixed(2);
+
+        console.log(closeYearDiff);
+        console.log(openYearDiff);
 
         const stats = {
           marketcap,
