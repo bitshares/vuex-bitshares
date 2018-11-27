@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import { ChainTypes } from 'bitsharesjs';
 import * as types from '../mutations';
 import API from '../services/api';
 import Subscriptions from '../services/api/subscriptions';
@@ -98,6 +99,30 @@ const actions = {
 
 const getters = {
   getOperations: state => state.list,
+  getActiveOrders: state => {
+    const openOrders = state.list.filter(x => x.type === 'limit_order_create');
+    const cancelOrders = state.list.filter(x => x.type === 'limit_order_cancel');
+    const filledOrders = state.list.filter(x => x.type === 'fill_order');
+    const notCanceledOrders = openOrders.filter(x => !cancelOrders.some(y => y.orderId === x.orderId));
+    notCanceledOrders.forEach(notCancelOrder => {
+      let percentFilled = 0;
+      filledOrders.forEach(filledOrder => {
+        if (filledOrder.orderId === notCancelOrder.orderId) {
+          const remain = notCancelOrder.payload.amount_to_sell.amount - filledOrder.payload.pays.amount;
+          percentFilled = +(
+            ((notCancelOrder.payload.amount_to_sell.amount - remain)
+              / notCancelOrder.payload.amount_to_sell.amount)
+              * 100)
+            .toFixed(2);
+        }
+      });
+      if (percentFilled < 100) {
+        notCancelOrder.percentFilled = percentFilled;
+      }
+    });
+    const activeOrders = notCanceledOrders.filter(x => x.hasOwnProperty('percentFilled'));
+    return activeOrders;
+  },
   isFetching: state => state.pending,
   isError: state => state.error,
   isSubscribed: state => state.subscribed

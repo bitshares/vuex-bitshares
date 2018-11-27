@@ -57,13 +57,29 @@ const Operations = {
     let isBid = false;
     let otherUserName = null;
 
+    let orderId;
     if (operationType === 'fill_order' || operationType === 'limit_order_create') {
       isBid = await Operations._checkIfBidOperation(operation);
+    }
+
+    if (operationType === 'limit_order_create') {
+      orderId = operation.result[1];
+    }
+
+
+    if (operationType === 'limit_order_cancel') {
+      orderId = operation.op[1].order;
+    }
+
+
+    if (operationType === 'fill_order') {
+      orderId = operation.op[1].order_id;
     }
 
     if (operationType === 'transfer') {
       otherUserName = await Operations._getOperationOtherUserName(userId, payload);
     }
+    // console.log(operation)
 
     return {
       id: operation.id,
@@ -71,7 +87,8 @@ const Operations = {
       payload,
       date,
       buyer: isBid,
-      otherUserName
+      otherUserName,
+      orderId
     };
   },
 
