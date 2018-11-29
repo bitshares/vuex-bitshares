@@ -63,7 +63,7 @@ const Operations = {
     }
 
     if (operationType === 'limit_order_create') {
-      orderId = operation.result[1];
+      [, orderId] = operation.result;
     }
 
     if (operationType === 'limit_order_cancel') {
