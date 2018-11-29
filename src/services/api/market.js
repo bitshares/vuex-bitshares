@@ -1,25 +1,10 @@
 import { Apis } from 'bitsharesjs-ws';
-import * as utils from '../../utils';
 import listener from './chain-listener';
 import Subscriptions from './subscriptions';
 import { getFiatMultiplier } from './history.js';
 
 const findOrder = (orderId) => {
   return (order) => orderId === order.id;
-};
-
-const calcOrderRate = (order) => {
-  const {
-    sell_price: {
-      quote: {
-        amount: quoteAmount
-      },
-      base: {
-        amount: baseAmount
-      }
-    }
-  } = order;
-  return baseAmount / quoteAmount;
 };
 
 const loadLimitOrders = async (baseId, quoteId, limit = 200) => {
@@ -228,6 +213,7 @@ class Market {
     this.setDefaultObjects(assetId);
     this.markets[assetId].lastOrderCallback = callback;
   }
+
   async unsubscribeFromLastOrder(assetId) {
     this.markets[assetId].lastOrderCallback = null;
   }
