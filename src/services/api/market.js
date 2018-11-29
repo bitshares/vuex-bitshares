@@ -63,7 +63,7 @@ class Market {
     const rawStats = await Promise.all(quotes.map(quotePromise));
     const fiatPrices = await getFiatMultiplier(this.base, fiatAsset);
 
-    return rawStats.map((raw) => {
+    return rawStats.reduce((result, raw) => {
       // eslint-disable-next-line
       const { latest, percent_change, base_volume, quote, base } = raw;
       const baseVolume = parseFloat(base_volume, 10);
@@ -72,10 +72,12 @@ class Market {
       const usdPrice = price / fiatPrices.last;
       const ticker = quote;
       const change24h = parseFloat(percent_change, 10);
-      return {
+
+      result[quote] = {
         baseVolume, usdVolume, price, usdPrice, ticker, base, change24h
       };
-    });
+      return result;
+    }, {});
   }
 
   getFee() {
