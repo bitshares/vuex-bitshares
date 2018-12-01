@@ -2,6 +2,7 @@ import { Apis } from 'bitsharesjs-ws';
 import * as utils from '../../utils';
 import listener from './chain-listener';
 import Subscriptions from './subscriptions';
+import { getFiatMultiplier } from './history.js';
 
 const findOrder = (orderId) => {
   return (order) => orderId === order.id;
@@ -57,9 +58,26 @@ class Market {
     listener.addSubscription(marketsSubscription);
   }
 
-  fetchStats(quotes) {
+  async fetchStats(quotes, fiatAsset) {
     const quotePromise = quote => Apis.instance().db_api().exec('get_ticker', [this.base.symbol, quote]);
-    return Promise.all(quotes.map(quotePromise));
+    const rawStats = await Promise.all(quotes.map(quotePromise));
+    const fiatPrices = await getFiatMultiplier(this.base, fiatAsset);
+
+    return rawStats.reduce((result, raw) => {
+      // eslint-disable-next-line
+      const { latest, percent_change, base_volume, quote, base } = raw;
+      const baseVolume = parseFloat(base_volume, 10);
+      const usdVolume = baseVolume / fiatPrices.median;
+      const price = parseFloat(latest, 10);
+      const usdPrice = price / fiatPrices.last;
+      const ticker = quote;
+      const change24h = parseFloat(percent_change, 10);
+
+      result[quote] = {
+        baseVolume, usdVolume, price, usdPrice, ticker, base, change24h
+      };
+      return result;
+    }, {});
   }
 
   getFee() {

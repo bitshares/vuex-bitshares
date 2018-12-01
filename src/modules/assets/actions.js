@@ -51,14 +51,6 @@ const actions = {
 
 actions.fetchDefaultAssets = async ({ commit }) => {
   const result = defaultAssets.slice();
-  const prefix = config.removePrefix;
-  if (prefix) {
-    result.forEach(asset => {
-      if (asset.symbol.substring(0, prefix.length) === prefix) {
-        asset.symbol = asset.symbol.slice(prefix.length);
-      }
-    });
-  }
   const assetsById = arrayToObject(result);
   const assetsByName = arrayToObject(result, 'symbol');
   commit(types.FETCH_ASSETS_COMPLETE, { assetsById, assetsByName });
