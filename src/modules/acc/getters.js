@@ -43,7 +43,11 @@ const getters = {
       owner: key.get_brainPrivateKey(brainkey, 1)
     };
   },
-  isWalletAcc: state => state.userType === 'wallet'
+  isWalletAcc: state => state.userType === 'wallet',
+  getActiveOrders: (state, getters, rootState, rootGetters) => {
+    if(!state.userData || !state.userData.limit_orders) return [];
+    return state.userData.limit_orders
+  }
 };
 
 export default getters;
