@@ -98,7 +98,10 @@ const mutations = {
     };
   },
   [types.FETCH_MARKET_STATS_REQUEST_COMPLETE](state, { base, stats }) {
-    state.stats[base].list = stats;
+    Object.keys(stats).forEach(quote => {
+      const currentStats = state.stats[base].list[quote]
+      Vue.set(state.stats[base].list, quote, Object.assign(currentStats || {}, stats[quote]))
+    })
     state.stats[base].fetching = false;
   },
   [types.FETCH_MARKET_STATS_REQUEST_ERROR](state, { base }) {
