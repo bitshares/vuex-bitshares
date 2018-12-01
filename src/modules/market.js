@@ -111,7 +111,7 @@ const mutations = {
   [types.FETCH_MARKET_STATS_7D_COMPLETE](state, { base, stats7d }) {
     Object.keys(stats7d).forEach(quote => {
       const quoteStats = state.stats[base].list[quote];
-      if (quoteStats) Vue.set(quoteStats, 'change7d', parseInt(stats7d[quote], 10));
+      if (quoteStats) Vue.set(quoteStats, 'change7d', parseFloat(stats7d[quote], 10));
     });
   },
   [types.SUB_TO_MARKET_REQUEST](state, { baseAsset, quoteAsset }) {
