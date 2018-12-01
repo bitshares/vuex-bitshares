@@ -42,7 +42,8 @@ const getters = {
       active: key.get_brainPrivateKey(brainkey, 0),
       owner: key.get_brainPrivateKey(brainkey, 1)
     };
-  }
+  },
+  isWalletAcc: state => state.userType === 'wallet'
 };
 
 export default getters;
