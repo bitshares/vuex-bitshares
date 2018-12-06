@@ -24,14 +24,14 @@ describe('test market orders', () => {
 	}
 	const market = Market(baseAsset)
 
-	const spendAssetOrder = market.createOrder({
+	const spendAssetSides = market.getOrderSides({
 		type: 'spend',
 		asset: quoteAsset,
 		spend: 100,
 		get: 1000
 	});
 
-	const getAssetOrder = market.createOrder({
+	const getAssetSides = market.getOrderSides({
 		type: 'get',
 		asset: quoteAsset,
 		spend: 1000,
@@ -39,18 +39,18 @@ describe('test market orders', () => {
 	});
 
 	test('sides are valid', () => {
-		expect(spendAssetOrder).toEqual({ 
+		expect(spendAssetSides).toEqual({ 
 			sell: { asset_id: '1.3.113', amount: 100 },
 			receive: { asset_id: '1.3.0', amount: 1000 } 
 		});
-		expect(getAssetOrder).toEqual({ 
+		expect(getAssetSides).toEqual({ 
 			sell: { asset_id: '1.3.0', amount: 1000 },
 			receive: { asset_id: '1.3.113', amount: 100 } 
 		});
 	});
 
 	test('users appends and order creates', () => {
-		const order = composeOrder(spendAssetOrder, 'testUser');
+		const order = composeOrder(spendAssetSides, 'testUser');
 		const expiration = new Date();
   		expiration.setYear(expiration.getFullYear() + 5);
 		expect(order).toEqual({ 
