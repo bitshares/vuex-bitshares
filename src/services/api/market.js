@@ -43,6 +43,24 @@ class Market {
     listener.addSubscription(marketsSubscription);
   }
 
+
+  // type: spend | get 
+
+  createOrder({ type, asset, spend, get}) {
+    const [spendAsset, getAsset] = (type === 'spend') ? [asset, this.base] : [this.base, asset];
+
+    return {
+      sell: {
+        asset_id: spendAsset.id,
+        amount: spend
+      },
+      receive: {
+        asset_id: getAsset.id,
+        amount: get
+      }
+    };
+  }
+
   async fetchStats(quotes, fiatAsset) {
     const quotePromise = quote => Apis.instance().db_api().exec('get_ticker', [this.base.symbol, quote]);
     const rawStats = await Promise.all(quotes.map(quotePromise));
