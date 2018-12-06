@@ -45,8 +45,8 @@ const getters = {
   },
   isWalletAcc: state => state.userType === 'wallet',
   getActiveOrders: (state) => {
-    if (!state.userData || !state.userData.limit_orders) return [];
-    return state.userData.limit_orders;
+    if (state.userData && state.userData.limit_orders) return state.userData.limit_orders;
+    return [];
   }
 };
 
