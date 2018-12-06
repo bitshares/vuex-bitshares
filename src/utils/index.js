@@ -180,19 +180,6 @@ export const distributionSampling = (proportions, accuracy) => {
   );
 };
 
-export const createOrder = ({ sell, receive, userId, fillOrKill = false }) => {
-  const expiration = new Date();
-  expiration.setYear(expiration.getFullYear() + 5);
-  return {
-    seller: userId,
-    amount_to_sell: sell,
-    min_to_receive: receive,
-    expiration,
-    fill_or_kill: fillOrKill
-  };
-};
-
-
 export const getValuesToUpdate = (balances, baseBalances, update) => {
   const totalBase = Object.keys(baseBalances).reduce((res, key) => res + baseBalances[key], 0);
   const distribution = distributionFromBalances(baseBalances);

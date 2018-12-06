@@ -1,7 +1,7 @@
 import { TransactionBuilder } from 'bitsharesjs';
 import { ChainConfig } from 'bitsharesjs-ws';
 import { getUser } from './account';
-import { encryptMemo, getMemoPrivKey, createOrder } from '../../utils';
+import { encryptMemo, getMemoPrivKey } from '../../utils';
 
 
 export const signTransaction = async (transaction, { active, owner }) => {
@@ -89,12 +89,18 @@ export const transferAsset = async (fromId, to, assetId, amount, keys, memo = fa
   return signAndBroadcastTransaction(transaction, keys);
 };
 
-export const composeOrder = (sides, userId, fillOrKill = false) => {
-  return createOrder({
-    ...sides,
-    userId,
-    fillOrKill
-  });
+export const createOrder = (sides, userId, fillOrKill = false) => {
+  // Todo: maket it parameter with default
+  const expiration = new Date();
+  expiration.setYear(expiration.getFullYear() + 5);
+
+  return {
+    seller: userId,
+    amount_to_sell: sides.sell,
+    min_to_receive: sides.receive,
+    expiration,
+    fill_or_kill: fillOrKill
+  };
 };
 
 export const placeOrder = (order, keys) => {
@@ -130,7 +136,7 @@ export default {
   transferAsset,
   signTransaction,
   placeOrders,
-  composeOrder,
+  createOrder,
   placeOrder,
   cancelOrder
 };

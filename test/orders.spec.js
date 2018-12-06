@@ -1,5 +1,5 @@
 import Market from '../src/services/api/market.js';
-import { composeOrder, placeOrder } from '../src/services/api/transactions.js';
+import { createOrder, placeOrder } from '../src/services/api/transactions.js';
 
 const DATE_TO_USE = new Date('2016');
 const _Date = Date;
@@ -50,7 +50,7 @@ describe('test market orders', () => {
 	});
 
 	test('users appends and order creates', () => {
-		const order = composeOrder(spendAssetSides, 'testUser');
+		const order = createOrder(spendAssetSides, 'testUser');
 		const expiration = new Date();
   		expiration.setYear(expiration.getFullYear() + 5);
 		expect(order).toEqual({ 
