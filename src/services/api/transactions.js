@@ -4,7 +4,7 @@ import { getUser } from './account';
 import { encryptMemo, getMemoPrivKey } from '../../utils';
 
 
-const signTransaction = async (transaction, { active, owner }) => {
+export const signTransaction = async (transaction, { active, owner }) => {
   const pubkeys = [active, owner].map(privkey => privkey.toPublicKey().toPublicKeyString());
   const requiredPubkeys = await transaction.get_required_signatures(pubkeys);
   requiredPubkeys.forEach(requiredPubkey => {
@@ -19,7 +19,7 @@ const signTransaction = async (transaction, { active, owner }) => {
 };
 
 
-const signAndBroadcastTransaction = async (transaction, keys) => {
+export const signAndBroadcastTransaction = async (transaction, keys) => {
   return new Promise(async (resolve) => {
     const broadcastTimeout = setTimeout(() => {
       resolve({ success: false, error: 'expired' });
@@ -41,7 +41,7 @@ const signAndBroadcastTransaction = async (transaction, keys) => {
 };
 
 
-const transferAsset = async (fromId, to, assetId, amount, keys, memo = false) => {
+export const transferAsset = async (fromId, to, assetId, amount, keys, memo = false) => {
   const toAccount = await getUser(to);
   if (!toAccount.success) {
     return { success: false, error: 'Destination user not found' };
@@ -89,8 +89,27 @@ const transferAsset = async (fromId, to, assetId, amount, keys, memo = false) =>
   return signAndBroadcastTransaction(transaction, keys);
 };
 
+export const createOrder = (sides, userId, fillOrKill = false) => {
+  // Todo: maket it parameter with default
+  const expiration = new Date();
+  expiration.setYear(expiration.getFullYear() + 5);
 
-const placeOrders = async ({ orders, keys }) => {
+  return {
+    seller: userId,
+    amount_to_sell: sides.sell,
+    min_to_receive: sides.receive,
+    expiration,
+    fill_or_kill: fillOrKill
+  };
+};
+
+export const placeOrder = (order, keys) => {
+  const transaction = new TransactionBuilder();
+  transaction.add_type_operation('limit_order_create', order);
+  return signAndBroadcastTransaction(transaction, keys);
+};
+
+export const placeOrders = async ({ orders, keys }) => {
   const transaction = new TransactionBuilder();
   console.log('placing orders : ', orders);
   orders.forEach(o => transaction.add_type_operation('limit_order_create', o));
@@ -98,7 +117,7 @@ const placeOrders = async ({ orders, keys }) => {
 };
 
 
-const cancelOrder = async ({ orderId, userId, keys }) => {
+export const cancelOrder = async ({ orderId, userId, keys }) => {
   const transaction = new TransactionBuilder();
   const cancelObject = {
     fee: {
@@ -117,5 +136,7 @@ export default {
   transferAsset,
   signTransaction,
   placeOrders,
+  createOrder,
+  placeOrder,
   cancelOrder
 };
