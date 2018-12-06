@@ -44,9 +44,9 @@ class Market {
   }
 
 
-  // type: spend | get 
+  // type: spend | get
 
-  createOrder({ type, asset, spend, get}) {
+  createOrder({ type, asset, spend, get }) {
     const [spendAsset, getAsset] = (type === 'spend') ? [asset, this.base] : [this.base, asset];
 
     return {

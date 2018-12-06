@@ -95,13 +95,13 @@ export const composeOrder = (sides, userId, fillOrKill = false) => {
     userId,
     fillOrKill
   });
-}
+};
 
 export const placeOrder = (order, keys) => {
   const transaction = new TransactionBuilder();
   transaction.add_type_operation('limit_order_create', order);
   return signAndBroadcastTransaction(transaction, keys);
-}
+};
 
 export const placeOrders = async ({ orders, keys }) => {
   const transaction = new TransactionBuilder();
