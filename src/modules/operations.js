@@ -53,8 +53,8 @@ const actions = {
     if (!parsedData) return;
 
     const { type } = parsedData.operations[0];
-    console.log(type)
-    if (type === 'transfer' || type === 'fill_order' || type === 'cancel_order' || type === 'limit_order_create') {
+    if (type === 'transfer' || type === 'fill_order' || type === 'cancel_order' 
+      || type === 'limit_order_create') {
       // update current user balances
       store.dispatch('acc/fetchCurrentUser', null, { root: true });
     }
