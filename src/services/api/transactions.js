@@ -5,13 +5,13 @@ import { encryptMemo, getMemoPrivKey } from '../../utils';
 
 
 export const signTransaction = async (transaction, { active, owner }) => {
-  const pubkeys = [active, owner].map(privkey => privkey.toPublicKey().toPublicKeyString());
+  const pubkeys = [active, owner].map(privkey => privkey.toPublicKey().toPublicKeyString('BTS'));
   const requiredPubkeys = await transaction.get_required_signatures(pubkeys);
   requiredPubkeys.forEach(requiredPubkey => {
-    if (active.toPublicKey().toPublicKeyString() === requiredPubkey) {
+    if (active.toPublicKey().toPublicKeyString('BTS') === requiredPubkey) {
       transaction.add_signer(active, requiredPubkey);
     }
-    if (owner.toPublicKey().toPublicKeyString() === requiredPubkey) {
+    if (owner.toPublicKey().toPublicKeyString('BTS') === requiredPubkey) {
       transaction.add_signer(owner, requiredPubkey);
     }
   });
@@ -106,6 +106,7 @@ export const createOrder = (sides, userId, fillOrKill = false) => {
 export const placeOrder = (order, keys) => {
   const transaction = new TransactionBuilder();
   transaction.add_type_operation('limit_order_create', order);
+  console.log(transaction)
   return signAndBroadcastTransaction(transaction, keys);
 };
 

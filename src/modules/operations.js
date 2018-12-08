@@ -53,9 +53,9 @@ const actions = {
     if (!parsedData) return;
 
     const { type } = parsedData.operations[0];
-    if (type === 'transfer' || type === 'fill_order' || type === 'cancel_order') {
+    console.log(type)
+    if (type === 'transfer' || type === 'fill_order' || type === 'cancel_order' || type === 'limit_order_create') {
       // update current user balances
-      // todo : maybe refactor to modify balances directly
       store.dispatch('acc/fetchCurrentUser', null, { root: true });
     }
     store.dispatch('assets/fetchAssets', { assets: parsedData.assetsIds }, { root: true });
