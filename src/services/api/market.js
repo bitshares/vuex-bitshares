@@ -7,6 +7,19 @@ const findOrder = (orderId) => {
   return (order) => orderId === order.id;
 };
 
+const getFillOrders = async (baseId, quoteId, limit = 1) => {
+  try {
+    const orders = await Apis.instance().history_api().exec(
+      'get_fill_order_history',
+      [baseId, quoteId, limit]
+    );
+    return orders.map((obj) => obj.op);
+  } catch (e) {
+    console.log('Smth wrong', e);
+    return [];
+  }
+};
+
 const loadLimitOrders = async (baseId, quoteId, limit = 200) => {
   try {
     const orders = await Apis.instance().db_api().exec(
@@ -24,7 +37,6 @@ const loadLimitOrders = async (baseId, quoteId, limit = 200) => {
     });
     return { buyOrders, sellOrders };
   } catch (e) {
-    console.log('CATCHED!', e, baseId, quoteId);
     return {
       buyOrders: [],
       sellOrders: []
@@ -230,6 +242,10 @@ class Market {
   async subscribeToLastOrder(assetId, callback) {
     this.setDefaultObjects(assetId);
     this.markets[assetId].lastOrderCallback = callback;
+    const [lastOrder] = await getFillOrders(this.base.id, assetId);
+    if (lastOrder) {
+      this.markets[assetId].lastOrderCallback(lastOrder);
+    }
   }
 
   async unsubscribeFromLastOrder(assetId) {

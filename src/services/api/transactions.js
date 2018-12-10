@@ -106,7 +106,6 @@ export const createOrder = (sides, userId, fillOrKill = false) => {
 export const placeOrder = (order, keys) => {
   const transaction = new TransactionBuilder();
   transaction.add_type_operation('limit_order_create', order);
-  console.log(transaction)
   return signAndBroadcastTransaction(transaction, keys);
 };
 
