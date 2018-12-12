@@ -55,9 +55,11 @@ class Market {
     listener.addSubscription(marketsSubscription);
   }
 
-
+  // It returns sides, needed to place order
   // type: spend | get
-
+  // asset - asset to get or to spend
+  // spend, get - amounts
+  // get amount is optional, if we not providing it - this function will return data for market order.
   getOrderSides({ type, asset, spend, get }) {
     const [spendAsset, getAsset] = (type === 'spend') ? [asset, this.base] : [this.base, asset];
 
@@ -68,7 +70,7 @@ class Market {
       },
       receive: {
         asset_id: getAsset.id,
-        amount: get
+        amount: get || 0 // Placing 0 if get amount not specified, so it will be market order side
       }
     };
   }
