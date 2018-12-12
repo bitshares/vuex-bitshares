@@ -63,20 +63,32 @@ describe('test orders', () => {
 	});
 
 	test('market order should work', () => {
-		const marketSides = market.getOrderSides({
+		// getting unknown ammount of asset for spetified base (spend amount)
+		const marketSidesGet = market.getOrderSides({
 			type: 'get',
 			asset: quoteAsset,
 			spend: 1000
 		});
-		expect(marketSides).toEqual({ 
+		expect(marketSidesGet).toEqual({ 
 			sell: { asset_id: '1.3.0', amount: 1000 },
       		receive: { asset_id: '1.3.113', amount: 0 } 
   		});
 
-  		const orderObject = createOrder(marketSides, 'testUser')
+		// spending amount of asset for unknown ammount of base
+  		const marketSidesSpend = market.getOrderSides({
+			type: 'spend',
+			asset: quoteAsset,
+			spend: 1000,
+		});
+		expect(marketSidesSpend).toEqual({ 
+			sell: { asset_id: '1.3.113', amount: 1000 },
+      		receive: { asset_id: '1.3.0', amount: 0 } 
+      	});
 
-  		expect(marketSides.sell).toEqual(orderObject.amount_to_sell);
-  		expect(marketSides.receive).toEqual(orderObject.min_to_receive);
+  		const orderObject = createOrder(marketSidesGet, 'testUser')
+
+  		expect(marketSidesGet.sell).toEqual(orderObject.amount_to_sell);
+  		expect(marketSidesGet.receive).toEqual(orderObject.min_to_receive);
   		expect(orderObject.fill_or_kill).toBeTruthy();
 	});
 });
