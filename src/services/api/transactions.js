@@ -99,14 +99,13 @@ export const createOrder = (sides, userId, fillOrKill = false) => {
     amount_to_sell: sides.sell,
     min_to_receive: sides.receive,
     expiration,
-    fill_or_kill: fillOrKill
+    fill_or_kill: (fillOrKill || sides.receive.amount === 0)
   };
 };
 
 export const placeOrder = (order, keys) => {
   const transaction = new TransactionBuilder();
   transaction.add_type_operation('limit_order_create', order);
-  console.log(transaction);
   return signAndBroadcastTransaction(transaction, keys);
 };
 

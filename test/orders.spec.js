@@ -10,7 +10,7 @@ global.Date.now = _Date.now;
 
 
 
-describe('test market orders', () => {
+describe('test orders', () => {
 	const baseAsset = {
 		symbol: 'BTS',
 		id: '1.3.0',
@@ -60,5 +60,35 @@ describe('test market orders', () => {
       		expiration,
       		fill_or_kill: false 
       	});
-	})
+	});
+
+	test('market order should work', () => {
+		// getting unknown ammount of asset for spetified base (spend amount)
+		const marketSidesGet = market.getOrderSides({
+			type: 'get',
+			asset: quoteAsset,
+			spend: 1000
+		});
+		expect(marketSidesGet).toEqual({ 
+			sell: { asset_id: '1.3.0', amount: 1000 },
+      		receive: { asset_id: '1.3.113', amount: 0 } 
+  		});
+
+		// spending amount of asset for unknown ammount of base
+  		const marketSidesSpend = market.getOrderSides({
+			type: 'spend',
+			asset: quoteAsset,
+			spend: 1000,
+		});
+		expect(marketSidesSpend).toEqual({ 
+			sell: { asset_id: '1.3.113', amount: 1000 },
+      		receive: { asset_id: '1.3.0', amount: 0 } 
+      	});
+
+  		const orderObject = createOrder(marketSidesGet, 'testUser')
+
+  		expect(marketSidesGet.sell).toEqual(orderObject.amount_to_sell);
+  		expect(marketSidesGet.receive).toEqual(orderObject.min_to_receive);
+  		expect(orderObject.fill_or_kill).toBeTruthy();
+	});
 });
