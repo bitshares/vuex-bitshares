@@ -267,5 +267,5 @@ export default {
   getAccountIdByBrainkey,
   createAccount,
   createAccountBrainkey,
-  generateBackupFileFromBrainkey
+  generateBackupBlob
 };
