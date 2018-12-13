@@ -218,7 +218,8 @@ function createWalletBackup(
   });
 }
 
-export const generateBackupFileFromBrainkey = async ({ brainkey, password, name }) => {
+export const generateBackupBlob = async ({ brainkey, password, name }) => {
+  console.log(password);
   const passwordPrivate = PrivateKey.fromSeed(password);
   const passwordPubkey = passwordPrivate.toPublicKey().toPublicKeyString();
 
