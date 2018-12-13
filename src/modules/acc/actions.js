@@ -1,4 +1,4 @@
-import { Aes, PublicKey, key } from 'bitsharesjs';
+import { Aes } from 'bitsharesjs';
 import API from '../../services/api';
 import { types } from './mutations';
 
@@ -54,9 +54,13 @@ const parseOpenOrders = (orders, rootGetters) => {
 
 const actions = {
 
-  getBackupFile: async ({ commit }, { brainkey, password }) => {
-    const result = await API.Account.generateBackupFileFromBrainkey({ brainkey, password });
-    return result;
+
+  getBackupFile: async ({ commit }, { brainkey, password, name }) => {
+    const blob = await API.Account.generateBackupFileFromBrainkey({ brainkey, password, name });
+    if (blob) {
+      commit(types.ACCOUNT_BACKUP_FILE_GENERATED, { blob });
+    }
+    return blob;
   },
   /**
    * Logs in with password

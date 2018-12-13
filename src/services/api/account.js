@@ -1,5 +1,6 @@
 import { key, PrivateKey, Aes, PublicKey } from 'bitsharesjs';
 import { Apis } from 'bitsharesjs-ws';
+// import * as fs from 'fs';
 import config from '../../../config';
 import lib from '../../utils/lzma/lzma_worker-min.js';
 
@@ -217,10 +218,7 @@ function createWalletBackup(
   });
 }
 
-// comments get from bitshares-ui
-export const generateBackupFileFromBrainkey = async ({ brainkey, password }) => {
-  const accountId = await getAccountIdByBrainkey(brainkey);
-  const { name } = await getUser(accountId);
+export const generateBackupFileFromBrainkey = async ({ brainkey, password, name }) => {
   const passwordPrivate = PrivateKey.fromSeed(password);
   const passwordPubkey = passwordPrivate.toPublicKey().toPublicKeyString();
 
@@ -229,37 +227,35 @@ export const generateBackupFileFromBrainkey = async ({ brainkey, password }) => 
 
   const passwordAes = Aes.fromSeed(password);
   const encryptionBuffer = key.get_random_key().toBuffer();
-  // encryption_key is the global encryption key (does not change even if the passsword changes)
   const encryptionKey = passwordAes.encryptToHex(encryptionBuffer);
-  // If unlocking, localAesPrivate will become the global aes_private object
   const localAesPrivate = Aes.fromSeed(encryptionBuffer);
-
 
   const encryptedBrainkey = localAesPrivate.encryptToHex(brainkey);
 
+  const date = new Date();
+
   const walletObject = {
-    linked_accounts: {
+    linked_accounts: [{
       name,
       chainId: config.MAIN_NET_CHAINID
-    },
+    }],
     wallet: [{
-      backup_date: new Date().toString(),
-      brainkey_backup_date: new Date(),
+      backup_date: date.toString(),
+      brainkey_backup_date: date,
       brainkey_pubkey: brainkeyPubkey,
       brainkey_sequence: 0,
       chain_id: config.MAIN_NET_CHAINID,
-      created: new Date(),
+      created: date,
       encrypted_brainkey: encryptedBrainkey,
       encryption_key: encryptionKey,
       id: 'default',
-      last_modified: new Date(),
+      last_modified: date,
       password_pubkey: passwordPubkey,
       public_name: 'default',
     }]
   };
 
   const blob = await createWalletBackup(passwordPubkey, walletObject, 1);
-  console.log(blob);
   return blob;
 };
 
