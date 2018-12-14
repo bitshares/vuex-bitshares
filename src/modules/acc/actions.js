@@ -13,6 +13,7 @@ const balancesToObject = (balancesArr) => {
 };
 
 const parseOpenOrders = (orders, rootGetters) => {
+  console.log(orders);
   const parsedActiveOrders = orders.map(order => {
     const isBid = order.deferred_paid_fee.asset_id === order.sell_price.base.asset_id;
     const payAsset = isBid
@@ -46,7 +47,8 @@ const parseOpenOrders = (orders, rootGetters) => {
       spend,
       price,
       receiveAssetSymbol,
-      filled
+      filled,
+      orderId: order.id
     };
   });
   return parsedActiveOrders;
