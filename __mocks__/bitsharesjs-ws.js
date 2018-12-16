@@ -1,6 +1,7 @@
 /* eslint-env jest */
 import { ChainTypes } from 'bitsharesjs';
 import ApiSamples from './api_samples.js';
+import HistorySamples from './history_samples';
 
 const Apis = {};
 
@@ -108,6 +109,22 @@ Apis.fillOrderEvent = (notification) => {
 Apis.instance = () => {
   return {
     init_promise: new Promise(resolve => resolve()),
+    history_api: () => {
+      return {
+        exec: (name, data) => {
+          return new Promise(resolve => {
+            switch(name) {
+              case 'get_market_history': {
+                const [base, quote] = data;
+                resolve(HistorySamples[base][quote]);
+                break;
+              }
+              default: resolve();
+            }
+          });
+        }
+      }
+    },
     db_api: () => {
       return {
         exec: (name, data) => {
@@ -156,6 +173,11 @@ Apis.instance = () => {
               case 'subscribe_to_market': {
                 marketSubscribers.push(data);
                 resolve();
+                break;
+              }
+              case 'get_ticker': {
+                const [base, quote] = data;
+                resolve(ApiSamples.get_ticker[base][quote]);
                 break;
               }
               default: resolve();

@@ -53,10 +53,10 @@ const actions = {
     if (!parsedData) return;
 
     const { type } = parsedData.operations[0];
-    if (type === 'transfer' || type === 'fill_order' || type === 'cancel_order') {
+    if (type === 'transfer' || type === 'fill_order' || type === 'cancel_order'
+      || type === 'limit_order_create') {
       // update current user balances
-      // todo : maybe refactor to modify balances directly
-      store.dispatch('account/fetchCurrentUser', null, { root: true });
+      store.dispatch('acc/fetchCurrentUser', null, { root: true });
     }
     store.dispatch('assets/fetchAssets', { assets: parsedData.assetsIds }, { root: true });
     commit(types.ADD_USER_OPERATION, {
@@ -98,6 +98,33 @@ const actions = {
 
 const getters = {
   getOperations: state => state.list,
+  getActiveOrders: state => {
+    const openedOrder = state.list.filter(x => x.type === 'limit_order_create');
+    const canceledOrders = state.list.filter(x => x.type === 'limit_order_cancel');
+    const filledOrders = state.list.filter(x => x.type === 'fill_order');
+    const notCanceledOrders = openedOrder.filter(x => !canceledOrders.some(y => y.orderId === x.orderId));
+    notCanceledOrders.forEach(notCancelOrder => {
+      let percentFilled = 0;
+      filledOrders.forEach(filledOrder => {
+        if (filledOrder.orderId === notCancelOrder.orderId) {
+          const remain = notCancelOrder.payload.amount_to_sell.amount - filledOrder.payload.pays.amount;
+          percentFilled = +(
+            ((notCancelOrder.payload.amount_to_sell.amount - remain)
+              / notCancelOrder.payload.amount_to_sell.amount)
+              * 100);
+        }
+      });
+      if (percentFilled < 100) {
+        notCancelOrder.percentFilled = percentFilled;
+      }
+    });
+
+
+    const activeOrders = notCanceledOrders.filter(
+      x => Object.prototype.hasOwnProperty.call(x, 'percentFilled')
+    );
+    return activeOrders;
+  },
   isFetching: state => state.pending,
   isError: state => state.error,
   isSubscribed: state => state.subscribed

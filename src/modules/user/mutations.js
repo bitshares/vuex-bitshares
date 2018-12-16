@@ -1,15 +1,10 @@
-import * as types from '../mutations';
-import * as actions from '../actions/user';
-import * as getters from '../getters/user';
-
-const initialState = {
-  account: null,
-  balances: {},
-  fetching: false,
-  error: false
+export const types = {
+  FETCH_USER_REQUEST: 'FETCH_USER_REQUEST',
+  FETCH_USER_COMPLETE: 'FETCH_USER_COMPLETE',
+  FETCH_USER_ERROR: 'FETCH_USER_ERROR'
 };
 
-const mutations = {
+export const mutations = {
   [types.FETCH_USER_REQUEST](state) {
     state.fetching = true;
     state.error = false;
@@ -23,12 +18,4 @@ const mutations = {
     state.fetching = false;
     state.error = true;
   },
-};
-
-export default {
-  state: initialState,
-  actions,
-  getters,
-  mutations,
-  namespaced: true
 };

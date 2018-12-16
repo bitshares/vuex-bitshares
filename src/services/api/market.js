@@ -1,43 +1,47 @@
 import { Apis } from 'bitsharesjs-ws';
-import * as utils from '../../utils';
 import listener from './chain-listener';
 import Subscriptions from './subscriptions';
-import config from '../../../config';
-
+import { getFiatMultiplier } from './history.js';
 
 const findOrder = (orderId) => {
   return (order) => orderId === order.id;
 };
 
-const calcOrderRate = (order) => {
-  const {
-    sell_price: {
-      quote: {
-        amount: quoteAmount
-      },
-      base: {
-        amount: baseAmount
-      }
-    }
-  } = order;
-  return baseAmount / quoteAmount;
+const getFillOrders = async (baseId, quoteId, limit = 1) => {
+  try {
+    const orders = await Apis.instance().history_api().exec(
+      'get_fill_order_history',
+      [baseId, quoteId, limit]
+    );
+    return orders.map((obj) => obj.op);
+  } catch (e) {
+    console.log('Smth wrong', e);
+    return [];
+  }
 };
 
-const loadLimitOrders = async (baseId, quoteId, limit = 500) => {
-  const orders = await Apis.instance().db_api().exec(
-    'get_limit_orders',
-    [baseId, quoteId, limit]
-  );
-  const buyOrders = [];
-  const sellOrders = [];
-  orders.forEach((order) => {
-    if (order.sell_price.base.asset_id === baseId) {
-      buyOrders.push(order);
-    } else {
-      sellOrders.push(order);
-    }
-  });
-  return { buyOrders, sellOrders };
+const loadLimitOrders = async (baseId, quoteId, limit = 200) => {
+  try {
+    const orders = await Apis.instance().db_api().exec(
+      'get_limit_orders',
+      [baseId, quoteId, limit]
+    );
+    const buyOrders = [];
+    const sellOrders = [];
+    orders.forEach((order) => {
+      if (order.sell_price.base.asset_id === baseId) {
+        buyOrders.push(order);
+      } else {
+        sellOrders.push(order);
+      }
+    });
+    return { buyOrders, sellOrders };
+  } catch (e) {
+    return {
+      buyOrders: [],
+      sellOrders: []
+    };
+  }
 };
 
 class Market {
@@ -51,31 +55,83 @@ class Market {
     listener.addSubscription(marketsSubscription);
   }
 
+  // It returns sides, needed to place order
+  // type: spend | get
+  // asset - asset to get or to spend
+  // spend, get - amounts
+  // get amount is optional, if we not providing it - this function will return data for market order.
+  getOrderSides({ type, asset, spend, get }) {
+    const [spendAsset, getAsset] = (type === 'spend') ? [asset, this.base] : [this.base, asset];
+
+    return {
+      sell: {
+        asset_id: spendAsset.id,
+        amount: spend
+      },
+      receive: {
+        asset_id: getAsset.id,
+        amount: get || 0 // Placing 0 if get amount not specified, so it will be market order side
+      }
+    };
+  }
+
+  async fetchStats(quotes, fiatAsset) {
+    const quotePromise = quote => Apis.instance().db_api().exec('get_ticker', [this.base.symbol, quote]);
+    const rawStats = await Promise.all(quotes.map(quotePromise));
+    const fiatPrices = await getFiatMultiplier(this.base, fiatAsset);
+
+    return rawStats.reduce((result, raw) => {
+      // eslint-disable-next-line
+      const { latest, percent_change, base_volume, quote, base } = raw;
+      const baseVolume = parseFloat(base_volume, 10);
+      const usdVolume = baseVolume / fiatPrices.median;
+      const price = parseFloat(latest, 10);
+      const usdPrice = price / fiatPrices.last;
+      const ticker = quote;
+      const change24h = parseFloat(percent_change, 10);
+
+      result[quote] = {
+        baseVolume, usdVolume, price, usdPrice, ticker, base, change24h
+      };
+      return result;
+    }, {});
+  }
+
   getFee() {
     return this.fee;
   }
 
-  getCallback(pays, receives) {
-    if (pays === this.base) {
+  getCallbacks(pays, receives) {
+    if (pays === this.base.id) {
       if (this.isSubscribed(receives)) {
-        return this.markets[receives].callback;
+        return {
+          callback: this.markets[receives].callback,
+          lastOrderCallback: this.markets[receives].lastOrderCallback
+        };
       }
     }
-    if (receives === this.base) {
+    if (receives === this.base.id) {
       if (this.isSubscribed(pays)) {
-        return this.markets[pays].callback;
+        return {
+          callback: this.markets[pays].callback,
+          lastOrderCallback: this.markets[pays].lastOrderCallback
+        };
       }
     }
     return false;
   }
 
+  getBook(quote) {
+    return this.markets[quote.id].orders;
+  }
+
   getOrdersArray(pays, receives) {
-    if (pays === this.base) {
+    if (pays === this.base.id) {
       if (this.isSubscribed(receives)) {
         return this.markets[receives].orders.buy;
       }
     }
-    if (receives === this.base) {
+    if (receives === this.base.id) {
       if (this.isSubscribed(pays)) {
         return this.markets[pays].orders.sell;
       }
@@ -127,7 +183,7 @@ class Market {
 
     if (orders) {
       orders.push(order);
-      const callback = this.getCallback(pays, receives);
+      const { callback } = this.getCallbacks(pays, receives);
       callback('ADD ORDER');
     }
   }
@@ -145,9 +201,16 @@ class Market {
       const idx = orders.findIndex(findOrder(orderId));
       if (idx !== -1) {
         orders[idx].for_sale -= amount;
-        const callback = this.getCallback(pays, receives);
+        const { callback } = this.getCallbacks(pays, receives);
         callback('FILL ORDER');
       }
+    }
+
+    const { lastOrderCallback } = this.getCallbacks(pays, receives);
+
+    // Send order fill data to lastOrderCallback if exists
+    if (lastOrderCallback) {
+      lastOrderCallback(data.op[1]);
     }
   }
 
@@ -161,20 +224,34 @@ class Market {
         orders: {
           buy: [], sell: []
         },
-        callback: () => {}
+        callback: null,
+        lastOrderCallback: null
       };
     }
   }
 
   async subscribeToMarket(assetId, callback) {
-    if (assetId === this.base) return;
-    const { buyOrders, sellOrders } = await loadLimitOrders(this.base, assetId);
+    if (assetId === this.base.id) return;
+    const { buyOrders, sellOrders } = await loadLimitOrders(this.base.id, assetId);
     this.setDefaultObjects(assetId);
     // console.log('setting default: ' + assetId + ' : ', this.markets[assetId]);
     this.markets[assetId].orders.buy = buyOrders;
     this.markets[assetId].orders.sell = sellOrders;
     this.markets[assetId].callback = callback;
     callback();
+  }
+
+  async subscribeToLastOrder(assetId, callback) {
+    this.setDefaultObjects(assetId);
+    this.markets[assetId].lastOrderCallback = callback;
+    const [lastOrder] = await getFillOrders(this.base.id, assetId);
+    if (lastOrder) {
+      this.markets[assetId].lastOrderCallback(lastOrder);
+    }
+  }
+
+  async unsubscribeFromLastOrder(assetId) {
+    this.markets[assetId].lastOrderCallback = null;
   }
 
   unsubscribeFromMarket(assetId) {
@@ -190,111 +267,14 @@ class Market {
   unsubscribeFromMarkets() {
     this.markets = {};
   }
-
-  async subscribeToExchangeRate(assetId, amount, callback) {
-    let canReceiveInBasePrev = 0;
-    const wrappedCallback = () => {
-      const canReceiveInBase = this.calcExchangeRate(assetId, 'sell', amount);
-      if (canReceiveInBase !== canReceiveInBasePrev && canReceiveInBase > 0) {
-        canReceiveInBasePrev = canReceiveInBase;
-        callback(assetId, canReceiveInBase);
-      }
-    };
-    await this.subscribeToMarket(assetId, wrappedCallback);
-  }
-
-  calcExchangeRate(assetId, weWantTo, amount) {
-    let totalPay = amount;
-    let totalReceive = 0;
-
-    const requiredType = (weWantTo === 'sell') ? 'buy' : 'sell';
-    // console.log('cakc exchange rate for ' + assetId + ': ', this.markets[assetId]);
-    const orders = [...this.markets[assetId].orders[requiredType]].sort(
-      (a, b) => calcOrderRate(b) - calcOrderRate(a)
-    );
-    for (let i = 0; i < orders.length; i += 1) {
-      const { for_sale: saleAmount, sell_price: price } = orders[i];
-      const orderPrice = price.base.amount / price.quote.amount;
-      const weCanPayHere = Math.floor(saleAmount / orderPrice);
-
-      if (totalPay > weCanPayHere) {
-        totalReceive += parseInt(saleAmount, 10);
-        totalPay -= weCanPayHere;
-      } else {
-        totalReceive += totalPay * orderPrice;
-        break;
-      }
-    }
-    return Math.floor(totalReceive);
-  }
-
-  generateOrders({ update, balances, baseBalances, userId }) {
-    const calculated = utils.getValuesToUpdate(balances, baseBalances, update);
-    const sellOrders = [];
-    const buyOrders = [];
-
-    Object.keys(calculated.sell).forEach((assetId) => {
-      const toSell = calculated.sell[assetId];
-      // if (!toSell) return;
-      let toReceive = this.calcExchangeRate(assetId, 'sell', toSell);
-      const fee = this.getFee(assetId);
-      if (toReceive > fee) {
-        toReceive -= fee;
-        const orderObject = {
-          sell: {
-            asset_id: assetId,
-            amount: toSell
-          },
-          receive: {
-            asset_id: this.base,
-            amount: toReceive
-          },
-          userId,
-          fillOrKill: true
-        };
-        const order = utils.createOrder(orderObject);
-
-        sellOrders.push(order);
-      }
-    });
-
-    console.log('sell orders: ', sellOrders);
-
-
-    Object.keys(calculated.buy).forEach((assetId) => {
-      let toSellBase = calculated.buy[assetId];
-      const fee = this.getFee(assetId);
-      if (toSellBase > fee) {
-        toSellBase -= fee;
-        const toReceive = this.calcExchangeRate(assetId, 'buy', toSellBase);
-        if (!toReceive) return;
-        const orderObject = {
-          sell: {
-            asset_id: this.base,
-            amount: toSellBase
-          },
-          receive: {
-            asset_id: assetId,
-            amount: toReceive
-          },
-          userId
-        };
-        const order = utils.createOrder(orderObject);
-        buyOrders.push(order);
-      }
-    });
-
-    console.log('buy orders: ', buyOrders);
-    return {
-      sellOrders,
-      buyOrders
-    };
-  }
 }
 
 const markets = {};
-config.defaultMarkets.forEach(item => {
-  markets[item] = new Market(item);
-});
-
-export default markets;
+export default (baseAsset) => {
+  if (markets[baseAsset.id]) {
+    return markets[baseAsset.id];
+  }
+  const baseMarket = new Market(baseAsset);
+  markets[baseAsset.id] = baseMarket;
+  return markets[baseAsset.id];
+};

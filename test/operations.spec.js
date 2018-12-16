@@ -2,7 +2,7 @@
 import { createLocalVue } from 'vue-test-utils';
 import Vuex from 'vuex';
 import operations from '../src/modules/operations.js';
-import assets from '../src/modules/assets.js';
+import assets from '../src/modules/assets';
 
 jest.mock('../src/services/api/operations.js');
 jest.mock('../src/services/api/assets.js');

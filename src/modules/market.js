@@ -1,82 +1,134 @@
 import Vue from 'vue';
 import * as types from '../mutations';
 import API from '../services/api';
+import config from '../../config';
 
-const BtsMarket = API.Market['1.3.0'];
 
 const actions = {
-  subscribeToMarket(store, { balances }) {
-    const { commit } = store;
-    const assetsIds = Object.keys(balances);
-
-    Promise.all(assetsIds.map(assetId => {
-      const { balance } = balances[assetId];
-      return BtsMarket.subscribeToExchangeRate(assetId, balance, (id, amount) => {
-        if (!amount) return;
-        const rate = amount / balance;
-        console.log(assetId + ' new bts amount: : ' + amount);
-        actions.updateMarketPrice(store, {
-          assetId: id,
-          price: rate
-        });
-      }).then(() => {
-        console.log('SUBSCRIBED TO : ' + assetId + ' : ' + balance);
+  async fetchMarketStats({ commit, dispatch, rootGetters }, base) {
+    commit(types.FETCH_MARKET_STATS_REQUEST, base);
+    const quotes = config.defaultMarkets[base];
+    try {
+      const baseAsset = rootGetters['assets/getAssetBySymbol'](base);
+      const fiatAsset = rootGetters['assets/getAssetBySymbol']('USD');
+      const market = API.Market(baseAsset);
+      const stats = await market.fetchStats(quotes, fiatAsset);
+      await commit(types.FETCH_MARKET_STATS_REQUEST_COMPLETE, { base, stats });
+      dispatch('market/fetch7dMarketStats', base, { root: true });
+      return stats;
+    } catch (e) {
+      console.log(e);
+      commit(types.FETCH_MARKET_STATS_REQUEST_ERROR, { base });
+      return false;
+    }
+  },
+  async fetch7dMarketStats({ commit }, base) {
+    const quotes = config.defaultMarkets[base];
+    const stats7d = await API.History.getMarketChanges7d(base, quotes);
+    commit(types.FETCH_MARKET_STATS_7D_COMPLETE, { base, stats7d });
+    return stats7d;
+  },
+  async subscribeToMarket(store, { baseSymbol, quoteSymbol }) {
+    const { commit, rootGetters, getters } = store;
+    const baseAsset = rootGetters['assets/getAssetBySymbol'](baseSymbol);
+    const market = API.Market(baseAsset);
+    if (market) {
+      const quoteAsset = rootGetters['assets/getAssetBySymbol'](quoteSymbol);
+      commit(types.SUB_TO_MARKET_REQUEST, { baseAsset, quoteAsset });
+      console.log('ON SUBSCRIBE!', getters);
+      await market.subscribeToMarket(quoteAsset.id, (update) => {
+        commit(types.UPDATE_MARKET_BOOK, new Date());
+        console.log('Receive update', update, getters.getOrderBook);
       });
-    })).then(() => {
       commit(types.SUB_TO_MARKET_COMPLETE);
-      console.log('subscribed to market successfully');
-    });
+    } else {
+      commit(types.SUB_TO_MARKET_ERROR, 'no such market');
+    }
   },
-
-  unsubscribeFromMarket(store, { balances }) {
-    const { commit } = store;
-    const assetsIds = Object.keys(balances);
-    BtsMarket.unsubscribeFromMarkets();
-    Promise.all(assetsIds.map(id => {
-      console.log('unsubscribing: ', id);
-      return BtsMarket.unsubscribeFromExchangeRate(id);
-    })).then(() => {
+  unsubscribeFromMarket(store) {
+    const { commit, getters } = store;
+    if (getters.isSubscribed) {
+      const { base, quote } = getters.getMarketAssts;
+      const market = API.Market(base);
+      market.unsubscribeFromMarket(quote.id);
       commit(types.UNSUB_FROM_MARKET_COMPLETE);
-      console.log('unsubscribed from market');
-    });
-  },
-
-  updateMarketPrice(store, { assetId, price }) {
-    const { commit } = store;
-    commit(types.UPDATE_MARKET_PRICE, { assetId, price });
-    store.dispatch('transactions/createOrdersFromDistribution', null, { root: true });
+    }
   }
 };
 
 const getters = {
-  getBaseAssetId: state => state.baseAssetId,
-  getPrices: state => state.prices,
-  getPriceById: state => {
-    return (assetId) => {
-      if (assetId === state.baseId) return 1;
-      return state.prices[assetId] || 0;
-    };
-  },
+  getMarketBases: state => state.marketBases,
+  getMarketStats: state => state.stats,
+  getMarketStats7d: state => state.stats7d,
   isFetching: state => state.pending,
   isError: state => state.error,
-  isSubscribed: state => state.subscribed
+  isSubscribed: state => state.subscribed,
+  getMarketAssts: state => ({
+    base: state.baseAsset,
+    quote: state.quoteAsset
+  }),
+  getOrderBook: state => {
+    if (state.bookLastUpdated) {
+      return API.Market(state.baseAsset).getBook(state.quoteAsset);
+    }
+    return {
+      buyOrders: [],
+      sellOrders: []
+    };
+  }
 };
 
 const initialState = {
   pending: false,
   error: false,
-  baseAssetId: null,
   subscribed: false,
-  prices: {},
-  baseId: '1.3.0'
+  baseAsset: null,
+  quoteAsset: null,
+  stats: {},
+  bookLastUpdated: 0,
+  marketBases: config.marketBases
 };
 
 const mutations = {
-  [types.UPDATE_MARKET_PRICE](state, { assetId, price }) {
-    Vue.set(state.prices, assetId, price);
+  [types.FETCH_MARKET_STATS_REQUEST](state, base) {
+    const list = (state.stats[base] && state.stats[base].list) || {};
+    state.stats = {
+      ...state.stats,
+      [base]: { list, fetching: true }
+    };
+  },
+  [types.FETCH_MARKET_STATS_REQUEST_COMPLETE](state, { base, stats }) {
+    Object.keys(stats).forEach(quote => {
+      const currentStats = state.stats[base].list[quote];
+      Vue.set(state.stats[base].list, quote, Object.assign(currentStats || {}, stats[quote]));
+    });
+    state.stats[base].fetching = false;
+  },
+  [types.FETCH_MARKET_STATS_REQUEST_ERROR](state, { base }) {
+    state.stats[base].error = true;
+    state.stats[base].fetching = false;
+  },
+  [types.FETCH_MARKET_STATS_7D_COMPLETE](state, { base, stats7d }) {
+    Object.keys(stats7d).forEach(quote => {
+      const quoteStats = state.stats[base].list[quote];
+      if (quoteStats) Vue.set(quoteStats, 'change7d', parseFloat(stats7d[quote], 10));
+    });
+  },
+  [types.SUB_TO_MARKET_REQUEST](state, { baseAsset, quoteAsset }) {
+    state.pending = true;
+    state.baseAsset = baseAsset;
+    state.quoteAsset = quoteAsset;
+  },
+  [types.SUB_TO_MARKET_ERROR](state, error) {
+    state.pending = false;
+    state.error = error;
+  },
+  [types.UPDATE_MARKET_BOOK](state, time) {
+    state.bookLastUpdated = time;
   },
   [types.SUB_TO_MARKET_COMPLETE](state) {
     state.subscribed = true;
+    state.pending = false;
   },
   [types.UNSUB_FROM_MARKET_COMPLETE](state) {
     state.subscribed = false;
