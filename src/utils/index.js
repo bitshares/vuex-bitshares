@@ -215,3 +215,20 @@ export const getValuesToUpdate = (balances, baseBalances, update) => {
   });
   return result;
 };
+
+
+export const removePrefix = (string, prefix = 'OPEN.') => {
+  let trimmed = string;
+  if (string.substring(0, prefix.length) === prefix) trimmed = string.slice(prefix.length);
+  return trimmed;
+};
+
+// short float currency
+export const getFloatCurrency = (n) => {
+  const inputValue = n.toString();
+  const hasPoint = () => !!~inputValue.indexOf('.');
+  const value = hasPoint() ? inputValue.replace(/0+$/, '') : inputValue;
+
+  if (value[0] === '0' && value.length > 9) return value.slice(1, 10).toString();
+  return value.slice(0, 9) || '0'
+};

@@ -1,7 +1,9 @@
 // temp
 import { Aes } from 'bitsharesjs';
+import { format } from 'date-fns';
 import API from '../../services/api';
 import { types } from './mutations';
+import { removePrefix, getFloatCurrency } from '../../utils';
 
 // utils func -> move to utils
 const balancesToObject = (balancesArr) => {
@@ -21,31 +23,31 @@ const parseOpenOrders = (orders, rootGetters) => {
     const receiveAsset = isBid
       ? rootGetters['assets/getAssetById'](order.sell_price.quote.asset_id)
       : rootGetters['assets/getAssetById'](order.sell_price.base.asset_id);
-    const payAssetSymbol = payAsset.symbol;
-    const receiveAssetSymbol = receiveAsset.symbol;
+    const payAssetSymbol = removePrefix(payAsset.symbol);
+    const receiveAssetSymbol = removePrefix(receiveAsset.symbol);
     const filled = (order.sell_price.base.amount - order.for_sale) / (order.sell_price.base.amount);
-    const vol = isBid
-      ? order.for_sale / (10 ** payAsset.precision)
-      : order.for_sale / (10 ** receiveAsset.precision);
-    const spend = isBid
+    const spend = getFloatCurrency(isBid
       ? order.sell_price.base.amount / (10 ** payAsset.precision)
-      : order.sell_price.quote.amount / (10 ** receiveAsset.precision);
-    const get = isBid
+      : order.sell_price.quote.amount / (10 ** receiveAsset.precision));
+    const get = getFloatCurrency(isBid
       ? order.sell_price.quote.amount / (10 ** receiveAsset.precision)
-      : order.sell_price.base.amount / (10 ** payAsset.precision);
-    const price = parseFloat(spend / get);
+      : order.sell_price.base.amount / (10 ** payAsset.precision));
+    const price = getFloatCurrency(parseFloat(spend / get));
 
-    const dateClose = (new Date(order.expiration)).getTime();
+    const expiration = (new Date(order.expiration)).getTime();
+    const expiringDate = format(expiration, 'DD/MM/YY');
+    const expiringTime = format(expiration, 'HH:mm');
+
     return {
-      dateClose,
-      dateOpen: dateClose,
+      payAssetSymbol,
+      receiveAssetSymbol,
+      expiringDate,
+      expiringTime,
       get,
       order: isBid ? 'buy' : 'sell',
-      payAssetSymbol,
-      vol,
+      vol: isBid ? get : spend,
       spend,
       price,
-      receiveAssetSymbol,
       filled,
       orderId: order.id
     };
