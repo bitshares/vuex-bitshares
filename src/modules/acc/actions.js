@@ -1,4 +1,3 @@
-// temp
 import { Aes } from 'bitsharesjs';
 import API from '../../services/api';
 import { types } from './mutations';
@@ -52,7 +51,15 @@ const parseOpenOrders = (orders, rootGetters) => {
   return parsedActiveOrders;
 };
 
+
 const actions = {
+  getBackupBlob: async ({ commit }, { brainkey, password, name }) => {
+    const blob = await API.Account.generateBackupBlob({ brainkey, password, name });
+    if (blob) {
+      commit(types.ACCOUNT_BACKUP_FILE_GENERATED, { blob });
+    }
+    return blob;
+  },
   /**
    * Logs in with password
    * @param {string} name - username
