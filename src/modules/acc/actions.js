@@ -16,23 +16,33 @@ const balancesToObject = (balancesArr) => {
 
 const parseOpenOrders = (orders, rootGetters) => {
   const parsedActiveOrders = orders.map(order => {
-    const isBid = order.deferred_paid_fee.asset_id === order.sell_price.base.asset_id;
-    const payAsset = isBid
-      ? rootGetters['assets/getAssetById'](order.sell_price.base.asset_id)
-      : rootGetters['assets/getAssetById'](order.sell_price.quote.asset_id);
-    const receiveAsset = isBid
-      ? rootGetters['assets/getAssetById'](order.sell_price.quote.asset_id)
-      : rootGetters['assets/getAssetById'](order.sell_price.base.asset_id);
-    const payAssetSymbol = removePrefix(payAsset.symbol);
-    const receiveAssetSymbol = removePrefix(receiveAsset.symbol);
-    const filled = (order.sell_price.base.amount - order.for_sale) / (order.sell_price.base.amount);
-    const spend = getFloatCurrency(isBid
-      ? order.sell_price.base.amount / (10 ** payAsset.precision)
-      : order.sell_price.quote.amount / (10 ** receiveAsset.precision));
+    // need to get if from somewhere
+    const isBid = true;
+
+    const payInSellPrice = isBid ? order.sell_price.base : order.sell_price.quote;
+    const payAssetId = payInSellPrice.asset_id;
+    const payAsset = rootGetters['assets/getAssetById'](payAssetId);
+
+    const receiveInSellPrice = isBid ? order.sell_price.quote : order.sell_price.base;
+    const receiveAssetId = receiveInSellPrice.asset_id;
+    const receiveAsset = rootGetters['assets/getAssetById'](receiveAssetId);
+
     const get = getFloatCurrency(isBid
-      ? order.sell_price.quote.amount / (10 ** receiveAsset.precision)
-      : order.sell_price.base.amount / (10 ** payAsset.precision));
-    const price = getFloatCurrency(parseFloat(spend / get));
+      ? parseFloat(receiveInSellPrice.amount) / (10 ** receiveAsset.precision)
+      : parseFloat(payInSellPrice.amount) / (10 ** payAsset.precision));
+    const spend = getFloatCurrency(isBid
+      ? parseFloat(payInSellPrice.amount) / (10 ** payAsset.precision)
+      : parseFloat(receiveInSellPrice.amount) / (10 ** receiveAsset.precision));
+
+    const payAssetSymbol = isBid ? removePrefix(payAsset.symbol) : removePrefix(receiveAsset.symbol);
+    const receiveAssetSymbol = isBid ? removePrefix(receiveAsset.symbol): removePrefix(payAsset.symbol);
+    const filled = getFloatCurrency(
+      (order.sell_price.base.amount - order.for_sale) / (order.sell_price.base.amount)
+    );
+
+    const price = getFloatCurrency(isBid
+      ? parseFloat(spend / get)
+      : parseFloat(get / spend));
 
     const expiration = (new Date(order.expiration)).getTime();
     const expiringDate = format(expiration, 'DD/MM/YY');
