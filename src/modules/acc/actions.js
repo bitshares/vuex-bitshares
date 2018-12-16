@@ -35,7 +35,7 @@ const parseOpenOrders = (orders, rootGetters) => {
       : parseFloat(receiveInSellPrice.amount) / (10 ** receiveAsset.precision));
 
     const payAssetSymbol = isBid ? removePrefix(payAsset.symbol) : removePrefix(receiveAsset.symbol);
-    const receiveAssetSymbol = isBid ? removePrefix(receiveAsset.symbol): removePrefix(payAsset.symbol);
+    const receiveAssetSymbol = isBid ? removePrefix(receiveAsset.symbol) : removePrefix(payAsset.symbol);
     const filled = getFloatCurrency(
       (order.sell_price.base.amount - order.for_sale) / (order.sell_price.base.amount)
     );
