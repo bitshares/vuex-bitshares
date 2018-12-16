@@ -1,9 +1,6 @@
-// temp
 import { Aes } from 'bitsharesjs';
-import { format } from 'date-fns';
 import API from '../../services/api';
 import { types } from './mutations';
-import { removePrefix, getFloatCurrency } from '../../utils';
 
 // utils func -> move to utils
 const balancesToObject = (balancesArr) => {
@@ -27,32 +24,27 @@ const parseOpenOrders = (orders, rootGetters) => {
     const receiveAssetId = receiveInSellPrice.asset_id;
     const receiveAsset = rootGetters['assets/getAssetById'](receiveAssetId);
 
-    const get = getFloatCurrency(isBid
+    const get = isBid
       ? parseFloat(receiveInSellPrice.amount) / (10 ** receiveAsset.precision)
-      : parseFloat(payInSellPrice.amount) / (10 ** payAsset.precision));
-    const spend = getFloatCurrency(isBid
+      : parseFloat(payInSellPrice.amount) / (10 ** payAsset.precision);
+    const spend = isBid
       ? parseFloat(payInSellPrice.amount) / (10 ** payAsset.precision)
-      : parseFloat(receiveInSellPrice.amount) / (10 ** receiveAsset.precision));
+      : parseFloat(receiveInSellPrice.amount) / (10 ** receiveAsset.precision);
 
-    const payAssetSymbol = isBid ? removePrefix(payAsset.symbol) : removePrefix(receiveAsset.symbol);
-    const receiveAssetSymbol = isBid ? removePrefix(receiveAsset.symbol) : removePrefix(payAsset.symbol);
-    const filled = getFloatCurrency(
-      (order.sell_price.base.amount - order.for_sale) / (order.sell_price.base.amount)
-    );
+    const payAssetSymbol = isBid ? payAsset.symbol : receiveAsset.symbol;
+    const receiveAssetSymbol = isBid ? receiveAsset.symbol : payAsset.symbol;
+    const filled = (order.sell_price.base.amount - order.for_sale) / (order.sell_price.base.amount);
 
-    const price = getFloatCurrency(isBid
+    const price = isBid
       ? parseFloat(spend / get)
-      : parseFloat(get / spend));
+      : parseFloat(get / spend);
 
     const expiration = (new Date(order.expiration)).getTime();
-    const expiringDate = format(expiration, 'DD/MM/YY');
-    const expiringTime = format(expiration, 'HH:mm');
 
     return {
       payAssetSymbol,
       receiveAssetSymbol,
-      expiringDate,
-      expiringTime,
+      expiration,
       get,
       order: isBid ? 'buy' : 'sell',
       vol: isBid ? get : spend,
@@ -231,6 +223,5 @@ const actions = {
     commit(types.ACCOUNT_LOCK_WALLET);
   }
 };
-
 
 export default actions;
