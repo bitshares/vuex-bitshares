@@ -70,7 +70,7 @@ class Market {
       },
       receive: {
         asset_id: getAsset.id,
-        amount: get || 0 // Placing 0 if get amount not specified, so it will be market order side
+        amount: get || 1 // Placing 1 if get amount not specified, so it will be market order side
       }
     };
   }
