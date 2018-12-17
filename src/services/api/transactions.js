@@ -99,7 +99,7 @@ export const createOrder = (sides, userId, fillOrKill = false) => {
     amount_to_sell: sides.sell,
     min_to_receive: sides.receive,
     expiration,
-    fill_or_kill: (fillOrKill || sides.receive.amount === 0)
+    fill_or_kill: (fillOrKill || sides.receive.amount === 1)
   };
 };
 
