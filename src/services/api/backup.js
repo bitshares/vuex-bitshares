@@ -34,13 +34,10 @@ const decryptWalletBackup = (wif, input) => {
       return;
     }
 
-    console.log('Decrypted', decryptedBuffer);
-
     try {
       lib.LZMA_WORKER.decompress(decryptedBuffer, walletJson => {
         try {
           const wallet = JSON.parse(walletJson);
-          console.log('Wallet obj', wallet);
           resolve(wallet);
         } catch (error) {
           console.error('Error parsing wallet json');

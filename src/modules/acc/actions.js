@@ -12,6 +12,13 @@ const balancesToObject = (balancesArr) => {
 };
 
 const actions = {
+  getBackupBlob: async ({ commit }, { brainkey, password, name }) => {
+    const blob = await API.Account.generateBackupBlob({ brainkey, password, name });
+    if (blob) {
+      commit(types.ACCOUNT_BACKUP_FILE_GENERATED, { blob });
+    }
+    return blob;
+  },
   /**
    * Logs in with password
    * @param {string} name - username

@@ -70,6 +70,7 @@ const getters = {
   isLocked: state => {
     return !state.wallet.aesPrivate && (!state.keys.active || !state.keys.owner);
   },
+  getLoginType: state => state.userType,
   isLoggedIn: state => !!state.userId,
   isValidPassword: state => {
     return password => {

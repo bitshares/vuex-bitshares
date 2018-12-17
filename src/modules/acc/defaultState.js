@@ -13,6 +13,7 @@ export const getDefaultState = () => {
       aesPrivate: null
     },
     userData: null,
-    backupDate: null
+    backupDate: null,
+    backupBlob: null
   };
 };

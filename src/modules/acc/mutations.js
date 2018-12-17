@@ -9,7 +9,8 @@ export const types = {
   ACCOUNT_LOCK_WALLET: 'ACCOUNT_LOCK_WALLET',
   ACCOUNT_UNLOCK_WALLET: 'ACCOUNT_UNLOCK_WALLET',
   FETCH_CURRENT_USER: 'FETCH_CURRENT_USER',
-  STORE_BACKUP_DATE: 'STORE_BACKUP_DATE'
+  STORE_BACKUP_DATE: 'STORE_BACKUP_DATE',
+  ACCOUNT_BACKUP_FILE_GENERATED: 'ACCOUNT_BACKUP_FILE_GENERATED'
 };
 
 export const mutations = {
@@ -49,5 +50,8 @@ export const mutations = {
   },
   [types.STORE_BACKUP_DATE]: (state, date) => {
     state.backupDate = date;
+  },
+  [types.ACCOUNT_BACKUP_FILE_GENERATED]: (state, blob) => {
+    state.backupBlob = blob;
   }
 };
