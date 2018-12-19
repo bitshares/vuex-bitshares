@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import { createLocalVue } from 'vue-test-utils';
 import Vuex from 'vuex';
-import acc from '../src/modules/acc/';
+import acc from '../src/modules/acc';
 import { getDefaultState } from '../src/modules/acc/defaultState';
 
 jest.mock('../src/services/api/account.js');
@@ -9,11 +9,11 @@ jest.mock('../src/services/api/account.js');
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-const initialState = getDefaultState()
+const initialState = getDefaultState();
 
 describe('Assets module: getters', () => {
   let store;
-  let state
+  let state;
 
   beforeEach(() => {
     store = new Vuex.Store({
@@ -25,18 +25,18 @@ describe('Assets module: getters', () => {
   });
 
   test('has correct initial state', () => {
-    expect(state).toEqual(getDefaultState())
+    expect(state).toEqual(getDefaultState());
   });
 
   test('has correct getters', () => {
-    state.userId = '123'
+    state.userId = '123';
     expect(store.getters['acc/getAccountUserId']).toBe('123');
     expect(store.getters['acc/getCurrentUserName']).toBe(null);
-    state.userData = { account: { name: 'h0bb1t'} };
+    state.userData = { account: { name: 'h0bb1t' } };
     expect(store.getters['acc/getCurrentUserName']).toBe('h0bb1t');
 
     expect(store.getters['acc/getUserBalances']).toEqual({});
-    state.userData = { 
+    state.userData = {
       balances: {
         '1.2.3': { balance: 100 },
         '1.2.5': { balance: 0 },
@@ -71,25 +71,25 @@ describe('Assets module: mutations', () => {
   let state;
 
   beforeEach(() => {
-    state = getDefaultState()
+    state = getDefaultState();
   });
 
   test('ACCOUNT_CLOUD_LOGIN', () => {
-    acc.mutations.ACCOUNT_CLOUD_LOGIN(state, { userId: 'aaa', keys: { active: 1, owner: 2}});
+    acc.mutations.ACCOUNT_CLOUD_LOGIN(state, { userId: 'aaa', keys: { active: 1, owner: 2 } });
     expect(state.userId).toBe('aaa');
     expect(state.keys).toEqual({ active: 1, owner: 2 });
     expect(state.userType).toBe('password');
   });
 
   test('ACCOUNT_BRAINKEY_LOGIN', () => {
-    acc.mutations.ACCOUNT_BRAINKEY_LOGIN(state, { 
-      userId: 'aaa', 
-      wallet: { 
-        passwordPubkey: 1, 
+    acc.mutations.ACCOUNT_BRAINKEY_LOGIN(state, {
+      userId: 'aaa',
+      wallet: {
+        passwordPubkey: 1,
         encryptedBrainkey: 2,
         encryptionKey: 3,
         aesPrivate: 4
-      } 
+      }
     });
     expect(state.userId).toBe('aaa');
     expect(state.wallet).toEqual({
@@ -127,13 +127,14 @@ describe('Assets module: mutations', () => {
   });
 
   test('FETCH_CURRENT_USER', () => {
-    acc.mutations.FETCH_CURRENT_USER(state, { data: { balances: [1,2,3], account: 'zzz' } });
+    acc.mutations.FETCH_CURRENT_USER(state, { data: { balances: [1, 2, 3], account: 'zzz' } });
     expect(state.userData).toEqual({ balances: [1, 2, 3], account: 'zzz' });
   });
 });
 
 describe('Assets module: actions', () => {
-  let store, state;
+  let store;
+  let state;
 
   beforeEach(() => {
     // todo: debug deep clone module
@@ -142,14 +143,19 @@ describe('Assets module: actions', () => {
         acc
       }
     });
-    state = store.state.acc
+    state = store.state.acc;
   });
 
+  const testCloudAccount = {
+    name: 'chipiga-test',
+    password: 'P5KJ7gvTapkPDoKQ4iuJxxPZ966nX9jdPhRvVH4xZwuTq'
+  };
 
-  // test('Cloud login', async done => {
-  //   const response = await store.dispatch('acc/cloudLogin', { name: 'h0bb1t', password: 'hzhzhz' });
-  //   // TODO: ETC + create proper mock
-  // });
+  test('Cloud login', async () => {
+    const response = await store.dispatch('acc/cloudLogin', testCloudAccount);
+    expect(response.error).toEqual(false);
+    expect(state.userId).toEqual('1.2.1209196');
+  });
 
   // test('Brainkey login', async done => {
   //   const response = await store.dispatch('acc/brainkeyLogin', { braikey: 'TEST_BRAINKEY_HERE', password: 'hzhzhz' });
@@ -182,6 +188,4 @@ describe('Assets module: actions', () => {
   //   const response = await store.dispatch('acc/fetchCurrentUser');
   //   // TODO: ETC + create proper mock
   // });
-
-
 });
