@@ -157,26 +157,38 @@ describe('Assets module: actions', () => {
     expect(state.userId).toEqual('1.2.1209196');
   });
 
-  // test('Brainkey login', async done => {
-  //   const response = await store.dispatch('acc/brainkeyLogin', { braikey: 'TEST_BRAINKEY_HERE', password: 'hzhzhz' });
-  //   // TODO: ETC + create proper mock
-  // });
+  const testBrainkey = 'brinjal gardy brulee lotic athymia onstead reopen dance '
+    + 'reking arisard stylish retaker assuage anywise dyaster skiddoo';
 
-  
-  // test('File login', async done => {
-  //   const response = await store.dispatch('acc/fileLogin', { backup: 'TEST_FILE_HERE', password: 'hzhzhz' });
-  //   // TODO: ETC + create proper mock
-  // });
-  
-  // test('Signs up with password', async done => {
-  //   const response = await store.dispatch('acc/signupWithPassword', { name: 'h0bb1t', password: 'hzhzhz' });
-  //   // TODO: ETC + create proper mock
-  // });
+  test('Brainkey login', async () => {
+    const response = await store.dispatch('acc/brainkeyLogin', {
+      brainkey: testBrainkey,
+      password: '11111111'
+    });
+    expect(response.error).toEqual(false);
+    expect(state.userId).toEqual('1.2.1209224');
+    // TODO: ETC + create proper mock
+  });
+
+  test('Signs up with password', async () => {
+    const response = await store.dispatch('acc/signupWithPassword', { name: 'hobb1t', password: 'hzhzhz' });
+    console.log(response);
+    expect(response.error).toEqual(false);
+    expect(state.userType).toEqual('wallet');
+  });
 
   // test('Signs up with brainkey', async done => {
   //   const response = await store.dispatch('acc/signupBrainkey', { name: 'h0bb1t', password: 'hzhzhz', dictionary: 'zazaza' });
   //   // TODO: ETC + create proper mock
   // });
+
+
+  // test('File login', async done => {
+  //   const response = await store.dispatch('acc/fileLogin', { backup: 'TEST_FILE_HERE', password: 'hzhzhz' });
+  //   // TODO: ETC + create proper mock
+  // });
+  
+
 
   test('Logout', () => {
     store.dispatch('acc/logout');

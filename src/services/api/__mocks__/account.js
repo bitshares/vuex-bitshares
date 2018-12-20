@@ -1,4 +1,4 @@
-import { PrivateKey } from 'bitsharesjs';
+import { key, PrivateKey, Aes } from 'bitsharesjs';
 
 const suggestedBrainkey = 'glink omental webless pschent knopper brumous '
   + 'scarry were wasting isopod raper barbas maco kirn tegua mitome';
@@ -17,7 +17,6 @@ export const utils = {
 
     return { privKey, pubKey };
   },
-
   generateKeysFromPassword({ name, password }) {
     const { privKey: activeKey } = this.generateKeyFromPassword(
       name,
@@ -32,6 +31,24 @@ export const utils = {
     return {
       active: activeKey,
       owner: ownerKey
+    };
+  },
+  createWallet: ({ brainkey, password }) => {
+    const passwordAes = Aes.fromSeed(password);
+    const encryptionBuffer = key.get_random_key().toBuffer();
+    const encryptionKey = passwordAes.encryptToHex(encryptionBuffer);
+    const aesPrivate = Aes.fromSeed(encryptionBuffer);
+
+    const normalizedBrainkey = key.normalize_brainKey(brainkey);
+    const encryptedBrainkey = aesPrivate.encryptToHex(normalizedBrainkey);
+    const passwordPrivate = PrivateKey.fromSeed(password);
+    const passwordPubkey = passwordPrivate.toPublicKey().toPublicKeyString();
+
+    return {
+      passwordPubkey,
+      encryptionKey,
+      encryptedBrainkey,
+      aesPrivate,
     };
   },
 };
@@ -77,7 +94,18 @@ export const createAccount = ({ name }) => {
   });
 };
 
+export const getAccountIdByBrainkey = async (brainkey) => {
+  return new Promise((resolve) => {
+    if (brainkey === 'brinjal gardy brulee lotic athymia onstead reopen dance reking arisard stylish retaker assuage anywise dyaster skiddoo') {
+      resolve(['1.2.1209224']);
+    } else {
+      resolve({
+        success: false
+      });
+    }
+  });
+};
 
 export default {
-  utils, getUser, getAccountIdByOwnerPubkey, createAccount
+  utils, getUser, getAccountIdByOwnerPubkey, createAccount, getAccountIdByBrainkey
 };
