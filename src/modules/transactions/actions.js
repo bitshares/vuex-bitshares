@@ -187,17 +187,17 @@ const actions = {
         error: 'Wallet is locked'
       };
     }
-    const res = await API.Transactions.cancelOrder({orderId, userId, keys});
+    const res = await API.Transactions.cancelOrder({ orderId, userId, keys });
     if (res.success) {
       commit(types.PROCESS_CANCEL_ORDER_COMPLETE);
-      return { success: true};
+      return { success: true };
     }
 
     commit(types.PROCESS_CANCEL_ORDER_ERROR);
-    const error = !!res.error ? res.error: 'Something went wrong'
+    const error = res.error ? res.error : 'Something went wrong';
     return {
       success: false,
-      error: res.error
+      error
     };
   },
 };

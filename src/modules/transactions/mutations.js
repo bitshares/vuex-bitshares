@@ -72,6 +72,6 @@ export const mutations = {
     state.pendingCancelOrder = false;
   },
   [types.PROCESS_CANCEL_ORDER_ERROR](state) {
-    state.pendingCancelOrder = false;    
+    state.pendingCancelOrder = false;
   }
 };
