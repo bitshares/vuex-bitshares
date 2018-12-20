@@ -174,7 +174,32 @@ const actions = {
 
   clearPendingTransfer: ({ commit }) => {
     commit(types.CLEAR_PENDING_TRANSFER);
-  }
+  },
+
+  cancelOrder: async ({ commit, rootGetters }, { orderId }) => {
+    commit(types.PROCESS_CANCEL_ORDER_REQUEST, orderId);
+    const userId = rootGetters['acc/getAccountUserId'];
+    const keys = rootGetters['acc/getKeys'];
+    if (!keys) {
+      commit(types.PROCESS_CANCEL_ORDER_ERROR);
+      return {
+        success: false,
+        error: 'Wallet is locked'
+      };
+    }
+    const res = await API.Transactions.cancelOrder({orderId, userId, keys});
+    if (res.success) {
+      commit(types.PROCESS_CANCEL_ORDER_COMPLETE);
+      return { success: true};
+    }
+
+    commit(types.PROCESS_CANCEL_ORDER_ERROR);
+    const error = !!res.error ? res.error: 'Something went wrong'
+    return {
+      success: false,
+      error: res.error
+    };
+  },
 };
 
 export default actions;
