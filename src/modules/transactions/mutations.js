@@ -14,7 +14,9 @@ export const types = {
   PROCESS_PENDING_ORDERS_SELL_COMPLETE: 'PROCESS_PENDING_ORDERS_SELL_COMPLETE',
   FETCH_FEES: 'FETCH_FEES',
   SET_PENDING_TRANSFER: 'SET_PENDING_TRANSFER',
-  CLEAR_PENDING_TRANSFER: 'CLEAR_PENDING_TRANSFER',
+  PROCESS_CANCEL_ORDER_REQUEST: 'PROCESS_CANCE_ORDER_REQUEST',
+  PROCESS_CANCEL_ORDER_COMPLETE: 'PROCESS_CANCEL_ORDER_COMPLETE',
+  PROCESS_CANCEL_ORDER_ERROR: 'PROCESS_CANCEL_ORDER_ERROR'
 };
 
 export const mutations = {
@@ -62,5 +64,14 @@ export const mutations = {
   [types.PROCESS_PENDING_ORDERS_SELL_COMPLETE](state) {
     state.pendingOrders.sellOrders = [];
     state.sellOrdersProcessed = true;
+  },
+  [types.PROCESS_CANCEL_ORDER_REQUEST](state, orderId) {
+    state.pendingCancelOrder = orderId;
+  },
+  [types.PROCESS_CANCEL_ORDER_COMPLETE](state) {
+    state.pendingCancelOrder = false;
+  },
+  [types.PROCESS_CANCEL_ORDER_ERROR](state) {
+    state.pendingCancelOrder = false;
   }
 };
