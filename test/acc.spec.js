@@ -5,6 +5,7 @@ import acc from '../src/modules/acc';
 import { getDefaultState } from '../src/modules/acc/defaultState';
 
 jest.mock('../src/services/api/account.js');
+jest.mock('../src/services/api/backup.js');
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -167,37 +168,51 @@ describe('Assets module: actions', () => {
     });
     expect(response.error).toEqual(false);
     expect(state.userId).toEqual('1.2.1209224');
-    // TODO: ETC + create proper mock
   });
 
   test('Signs up with password', async () => {
     const response = await store.dispatch('acc/signupWithPassword', { name: 'hobb1t', password: 'hzhzhz' });
-    console.log(response);
     expect(response.error).toEqual(false);
-    expect(state.userType).toEqual('wallet');
+    expect(state.userType).toEqual('password');
+    expect(state.userId).toEqual('1.2.512210');
   });
 
-  // test('Signs up with brainkey', async done => {
-  //   const response = await store.dispatch('acc/signupBrainkey', { name: 'h0bb1t', password: 'hzhzhz', dictionary: 'zazaza' });
-  //   // TODO: ETC + create proper mock
-  // });
+
+  test('Fetches current user data', async () => {
+    await store.dispatch('acc/fetchCurrentUser');
+    expect(Object.keys(state.userData.balances)).toEqual(['1.3.0', '1.3.850']);
+  });
+
+  test('Signs up with brainkey', async () => {
+    const response = await store.dispatch(
+      'acc/signupBrainkey',
+      {
+        name: 'hobb1t',
+        password: 'hzhzhz',
+        dictionary: 'zazaza'
+      }
+    );
+    expect(response.error).toEqual(false);
+    expect(state.userType).toEqual('wallet');
+    expect(state.userId).toEqual('1.2.512210');
+  });
 
 
-  // test('File login', async done => {
-  //   const response = await store.dispatch('acc/fileLogin', { backup: 'TEST_FILE_HERE', password: 'hzhzhz' });
-  //   // TODO: ETC + create proper mock
-  // });
-  
-
+  test('File login', async () => {
+    const response = await store.dispatch(
+      'acc/fileLogin',
+      {
+        backup: 'hobb1t_backup_wif',
+        password: 'hzhzhz'
+      }
+    );
+    expect(response.success).toEqual(true);
+    expect(state.userType).toEqual('wallet');
+    expect(state.userId).toEqual('1.2.512210');
+  });
 
   test('Logout', () => {
     store.dispatch('acc/logout');
     expect(state).toEqual(getDefaultState());
-    // TODO: ETC + create proper mock
   });
-
-  // test('Fetches current user data', async done => {
-  //   const response = await store.dispatch('acc/fetchCurrentUser');
-  //   // TODO: ETC + create proper mock
-  // });
 });

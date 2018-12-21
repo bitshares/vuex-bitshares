@@ -56,6 +56,33 @@ export const utils = {
 export const getUser = async (nameOrId) => {
   return new Promise((resolve) => {
     process.nextTick(() => {
+      if (nameOrId === 'hobb1t' || nameOrId === '1.2.512210') {
+        resolve({
+          success: true,
+          data: {
+            account: {
+              id: '1.2.512210'
+            },
+            balances: [
+              {
+                id: '2.5.255580',
+                owner: '1.2.512210',
+                asset_type: '1.3.0',
+                balance: 3092178,
+                maintenance_flag: false
+              },
+              {
+                id: '2.5.255586',
+                owner: '1.2.512210',
+                asset_type: '1.3.850',
+                balance: 698,
+                maintenance_flag: false
+              }
+            ],
+            limit_orders: []
+          }
+        });
+      }
       resolve({
         success: users.includes(nameOrId)
       });
@@ -94,9 +121,28 @@ export const createAccount = ({ name }) => {
   });
 };
 
+export const createAccountBrainkey = ({ name }) => {
+  return new Promise((resolve) => {
+    process.nextTick(() => {
+      if (name === 'hobb1t') {
+        resolve({
+          success: true,
+          id: '1.2.512210'
+        });
+      } else {
+        resolve({
+          success: false
+        });
+      }
+    });
+  });
+};
+
+const brainkeyForAccountId = 'brinjal gardy brulee lotic athymia onstead reopen dance reking arisard stylish '
+  + 'retaker assuage anywise dyaster skiddoo';
 export const getAccountIdByBrainkey = async (brainkey) => {
   return new Promise((resolve) => {
-    if (brainkey === 'brinjal gardy brulee lotic athymia onstead reopen dance reking arisard stylish retaker assuage anywise dyaster skiddoo') {
+    if (brainkey === brainkeyForAccountId) {
       resolve(['1.2.1209224']);
     } else {
       resolve({
@@ -107,5 +153,5 @@ export const getAccountIdByBrainkey = async (brainkey) => {
 };
 
 export default {
-  utils, getUser, getAccountIdByOwnerPubkey, createAccount, getAccountIdByBrainkey
+  utils, getUser, getAccountIdByOwnerPubkey, createAccount, getAccountIdByBrainkey, createAccountBrainkey
 };
