@@ -1,6 +1,7 @@
 import { utils } from '../account';
 
-const brainkey = 'pheon dasi costar paler cooing pondman panurgy burton grike sculpt midnoon samara dermis derrick kurung femoral';
+const brainkey = 'pheon dasi costar paler cooing pondman panurgy burton grike '
+  + 'sculpt midnoon samara dermis derrick kurung femoral';
 
 export const restoreBackup = ({ backup, password }) => {
   return new Promise((resolve) => {

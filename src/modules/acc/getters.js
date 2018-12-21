@@ -9,7 +9,7 @@ const getters = {
     return state.wallet.aesPrivate.decryptHexToText(state.wallet.encryptedBrainkey);
   },
   getCurrentUserName: state => {
-    return state.userData && state.userData.account.name || null;
+    return (state.userData && state.userData.account.name) || null;
   },
   getUserBalances: state => {
     if (!state.userData || !state.userData.balances) return {};
