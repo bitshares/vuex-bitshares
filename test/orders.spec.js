@@ -71,7 +71,7 @@ describe('test orders', () => {
 		});
 		expect(marketSidesGet).toEqual({ 
 			sell: { asset_id: '1.3.0', amount: 1000 },
-      		receive: { asset_id: '1.3.113', amount: 0 } 
+      		receive: { asset_id: '1.3.113', amount: 1 } 
   		});
 
 		// spending amount of asset for unknown ammount of base
@@ -82,7 +82,7 @@ describe('test orders', () => {
 		});
 		expect(marketSidesSpend).toEqual({ 
 			sell: { asset_id: '1.3.113', amount: 1000 },
-      		receive: { asset_id: '1.3.0', amount: 0 } 
+      		receive: { asset_id: '1.3.0', amount: 1 } 
       	});
 
   		const orderObject = createOrder(marketSidesGet, 'testUser')
