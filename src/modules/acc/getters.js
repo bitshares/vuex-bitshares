@@ -2,8 +2,6 @@
 import { key, PrivateKey } from 'bitsharesjs';
 import config from '../../../config';
 
-console.log(config);
-
 const parseOpenOrders = (orders, rootGetters) => {
   const parsedActiveOrders = orders.map(order => {
     // need to get if from somewhere
