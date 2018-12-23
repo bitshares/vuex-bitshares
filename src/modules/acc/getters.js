@@ -1,20 +1,16 @@
 /* eslint no-shadow: ["error", { "allow": ["getters"] }] */
 import { key, PrivateKey } from 'bitsharesjs';
-import config from '../../../config'
+import config from '../../../config';
 
 console.log(config);
 
 const parseOpenOrders = (orders, rootGetters) => {
   const parsedActiveOrders = orders.map(order => {
     // need to get if from somewhere
-    let isBid;
-    const { symbol: baseSymbolInSellPrice } = rootGetters['assets/getAssetById'](order.sell_price.base.asset_id);
-    if (config.marketBases.some(x => x === baseSymbolInSellPrice)) {
-      isBid = true;
-    } else {
-      isBid = false
-    }
-    
+    const {
+      symbol: baseSymbolInSellPrice
+    } = rootGetters['assets/getAssetById'](order.sell_price.base.asset_id);
+    const isBid = config.marketBases.some(baseSymbol => baseSymbol === baseSymbolInSellPrice);
 
     const payInSellPrice = isBid ? order.sell_price.base : order.sell_price.quote;
     const payAssetId = payInSellPrice.asset_id;
