@@ -23,7 +23,7 @@ const parseOpenOrders = (orders, rootGetters) => {
 
     const payAssetSymbol = isBid ? payAsset.symbol : receiveAsset.symbol;
     const receiveAssetSymbol = isBid ? receiveAsset.symbol : payAsset.symbol;
-    const filled = (order.sell_price.base.amount - order.for_sale) / (order.sell_price.base.amount);
+    const filled = Math.floor((order.sell_price.base.amount - order.for_sale) / (order.sell_price.base.amount) * 100);
 
     const price = isBid
       ? parseFloat(spend / get)

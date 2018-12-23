@@ -9,10 +9,10 @@ const actions = {
    * Dispatches actions to fetch user operations & subscribe to new operations of this user
    * @param {String} userId - user's id
    */
-  fetchAndSubscribe: async (store, { userId, limit }) => {
+  fetchAndSubscribe: async (store, { userId, limit, callback }) => {
     // await actions.fetchUserOperations(store, { userId, limit });
     await actions.fetchUserOperations(store, { userId, limit });
-    await actions.subscribeToUserOperations(store, { userId });
+    await actions.subscribeToUserOperations(store, { userId, callback });
   },
 
   /**
@@ -43,7 +43,7 @@ const actions = {
    * @param {String} userId - user's id
    * @param {Object} operation - operation date object
    */
-  addUserOperation: async (store, { operation, userId }) => {
+  addUserOperation: async (store, { operation, userId, callback }) => {
     const { commit } = store;
     // parse operation data for better format & information
     const parsedData = await API.Operations.parseOperations({
@@ -53,10 +53,12 @@ const actions = {
     if (!parsedData) return;
 
     const { type } = parsedData.operations[0];
+    console.log(type)
     if (type === 'transfer' || type === 'fill_order' || type === 'cancel_order'
       || type === 'limit_order_create') {
       // update current user balances
       store.dispatch('acc/fetchCurrentUser', null, { root: true });
+      if (callback) callback(type)
     }
     store.dispatch('assets/fetchAssets', { assets: parsedData.assetsIds }, { root: true });
     commit(types.ADD_USER_OPERATION, {
@@ -68,13 +70,13 @@ const actions = {
    * Subscribes to new user's operations
    * @param {String} userId - user's id
    */
-  subscribeToUserOperations(store, { userId }) {
+  subscribeToUserOperations(store, { userId, callback }) {
     const { commit } = store;
     const userOperations = new Subscriptions.UserOperations({
       userId,
       callback: (operation) => {
         console.log('new operation: ', operation);
-        actions.addUserOperation(store, { operation, userId });
+        actions.addUserOperation(store, { operation, userId, callback });
       }
     });
     API.ChainListener.addSubscription(userOperations);
