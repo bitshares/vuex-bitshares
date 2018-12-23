@@ -11,47 +11,6 @@ const balancesToObject = (balancesArr) => {
   return obj;
 };
 
-const parseOpenOrders = (orders, rootGetters) => {
-  const parsedActiveOrders = orders.map(order => {
-    const isBid = order.deferred_paid_fee.asset_id === order.sell_price.base.asset_id;
-    const payAsset = isBid
-      ? rootGetters['assets/getAssetById'](order.sell_price.base.asset_id)
-      : rootGetters['assets/getAssetById'](order.sell_price.quote.asset_id);
-    const receiveAsset = isBid
-      ? rootGetters['assets/getAssetById'](order.sell_price.quote.asset_id)
-      : rootGetters['assets/getAssetById'](order.sell_price.base.asset_id);
-    const payAssetSymbol = payAsset.symbol;
-    const receiveAssetSymbol = receiveAsset.symbol;
-    const filled = (order.sell_price.base.amount - order.for_sale) / (order.sell_price.base.amount);
-    const vol = isBid
-      ? order.for_sale / (10 ** payAsset.precision)
-      : order.for_sale / (10 ** receiveAsset.precision);
-    const spend = isBid
-      ? order.sell_price.base.amount / (10 ** payAsset.precision)
-      : order.sell_price.quote.amount / (10 ** receiveAsset.precision);
-    const get = isBid
-      ? order.sell_price.quote.amount / (10 ** receiveAsset.precision)
-      : order.sell_price.base.amount / (10 ** payAsset.precision);
-    const price = parseFloat(spend / get);
-
-    const dateClose = (new Date(order.expiration)).getTime();
-    return {
-      dateClose,
-      dateOpen: dateClose,
-      get,
-      order: isBid ? 'buy' : 'sell',
-      payAssetSymbol,
-      vol,
-      spend,
-      price,
-      receiveAssetSymbol,
-      filled
-    };
-  });
-  return parsedActiveOrders;
-};
-
-
 const actions = {
   getBackupBlob: async ({ commit }, { brainkey, password, name }) => {
     const blob = await API.Account.generateBackupBlob({ brainkey, password, name });
@@ -191,14 +150,13 @@ const actions = {
   },
 
   fetchCurrentUser: async (store) => {
-    const { commit, getters, rootGetters } = store;
+    const { commit, getters } = store;
     const userId = getters.getAccountUserId;
     if (!userId) return;
     const result = await API.Account.getUser(userId);
     if (result.success) {
       const user = result.data;
       result.data.balances = balancesToObject(user.balances);
-      user.limit_orders = parseOpenOrders(user.limit_orders, rootGetters);
       commit(types.FETCH_CURRENT_USER, { data: user });
     }
   },
@@ -225,6 +183,5 @@ const actions = {
     commit(types.ACCOUNT_LOCK_WALLET);
   }
 };
-
 
 export default actions;

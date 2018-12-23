@@ -7,6 +7,7 @@ export const getDefaultState = () => {
     },
     pendingTransfer: false,
     pending: false,
+    pendingCancelOrder: false,
     error: null,
     transactionsProcessing: false,
     sellOrdersProcessed: false,
