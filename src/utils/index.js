@@ -86,8 +86,8 @@ export const decryptMemo = (memo, privateKey) => {
 
 export const getMemoPrivKey = (keys, publicKey) => {
   const { active, owner } = keys;
-  const ownerPubkey = owner.toPublicKey().toPublicKeyString();
-  const activePubkey = active.toPublicKey().toPublicKeyString();
+  const ownerPubkey = owner.toPublicKey().toPublicKeyString('BTS');
+  const activePubkey = active.toPublicKey().toPublicKeyString('BTS');
   if (publicKey === ownerPubkey) {
     return owner;
   }

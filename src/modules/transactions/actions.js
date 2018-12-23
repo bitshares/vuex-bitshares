@@ -141,10 +141,8 @@ const actions = {
 
   transferAsset: async ({ commit, rootGetters }, { to, assetId, amount, memo }) => {
     commit(types.TRANSFER_ASSET_REQUEST);
-    console.log('transferAsset to1', to);
-    const fromId = rootGetters['account/getAccountUserId'];
-
-    const keys = rootGetters['account/getKeys'];
+    const fromId = rootGetters['acc/getAccountUserId'];
+    const keys = rootGetters['acc/getKeys'];
 
     if (!keys) {
       commit(types.TRANSFER_ASSET_ERROR, 'Wallet locked');
@@ -153,7 +151,6 @@ const actions = {
         error: 'Wallet is locked'
       };
     }
-    console.log('transferAsset to2', to);
     const res = await API.Transactions.transferAsset(fromId, to, assetId, amount, keys, memo);
     if (res.success) {
       commit(types.TRANSFER_ASSET_COMPLETE);
