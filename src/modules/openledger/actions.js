@@ -67,6 +67,7 @@ const actions = {
     });
 
     commit(types.FETCH_OPENLEDGER_COINS_COMPLETE, { coins });
+    return coins;
   }
 };
 
