@@ -1,7 +1,7 @@
 /* eslint no-underscore-dangle: 0 */
-import { Apis } from 'bitsharesjs-ws';
+import { Apis } from 'bitsharesjs/node_modules/bitsharesjs-ws';
 /**
- * Subscribe to updates from bitsharesjs-ws
+ * Subscribe to updates from bitsharesjs/node_modules/bitsharesjs-ws
  */
 
 class ChainListener {

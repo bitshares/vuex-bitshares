@@ -3,7 +3,7 @@
 
 import PersistentStorage from '../persistent-storage';
 
-// BitsharesJS-WS Nodes Manager
+// bitsharesjs/node_modules/bitsharesjs-ws Nodes Manager
 // Selects node with minimal ping, stores nodes data in persistent storage & retrieves it from there
 class NodesManager {
   constructor({ nodes, defaultNode }) {

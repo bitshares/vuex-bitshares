@@ -1,6 +1,6 @@
 /* eslint no-underscore-dangle: 0 */
 import { ChainTypes } from 'bitsharesjs';
-import { Apis } from 'bitsharesjs-ws';
+import { Apis } from 'bitsharesjs/node_modules/bitsharesjs-ws';
 import { getUser } from './account.js';
 import { getParameters } from './parameters.js';
 

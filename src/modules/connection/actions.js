@@ -2,7 +2,7 @@ import API from '../../services/api';
 import { types } from './mutations';
 
 /**
- * Initializes connection to Bitsharesjs-WS
+ * Initializes connection to bitsharesjs/node_modules/bitsharesjs-ws
  */
 const actions = {
   initConnection: ({ commit, getters }, changeNode) => {

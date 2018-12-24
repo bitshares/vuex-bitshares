@@ -1,4 +1,4 @@
-import { Apis } from 'bitsharesjs-ws';
+import { Apis } from 'bitsharesjs/node_modules/bitsharesjs-ws';
 import listener from './chain-listener';
 import Subscriptions from './subscriptions';
 import { getFiatMultiplier } from './history.js';
