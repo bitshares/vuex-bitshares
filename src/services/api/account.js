@@ -1,5 +1,5 @@
 import { key, PrivateKey, Aes, PublicKey } from 'bitsharesjs';
-import { Apis } from 'bitsharesjs/node_modules/bitsharesjs-ws';
+import { Apis } from 'bitsharesjs-ws';
 // import * as fs from 'fs';
 import config from '../../../config';
 import lib from '../../utils/lzma/lzma_worker-min.js';

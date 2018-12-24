@@ -15,7 +15,7 @@ const balancesToObject = (balancesArr) => {
 
 const actions = {
   /**
-   * Fetches users objects from bitsharesjs/node_modules/bitsharesjs-ws
+   * Fetches users objects from bitsharesjs-ws
    * @param {string} username - name of user to fetch
    */
   fetchUser: async ({ commit }, nameOrId) => {

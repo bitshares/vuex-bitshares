@@ -1,8 +1,8 @@
-import { Apis } from 'bitsharesjs/node_modules/bitsharesjs-ws';
+import { Apis } from 'bitsharesjs-ws';
 import * as utils from '../../utils';
 
 /**
- * Fetches array of assets from bitsharesjs/node_modules/bitsharesjs-ws
+ * Fetches array of assets from bitsharesjs-ws
  */
 const fetch = async (assets) => {
   try {

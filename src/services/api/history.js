@@ -1,4 +1,4 @@
-import { Apis } from 'bitsharesjs/node_modules/bitsharesjs-ws';
+import { Apis } from 'bitsharesjs-ws';
 import defaultAssets from '../../../assets';
 import { arrayToObject } from '../../utils';
 

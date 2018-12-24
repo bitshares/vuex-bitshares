@@ -1,4 +1,4 @@
-import { Apis } from 'bitsharesjs/node_modules/bitsharesjs-ws';
+import { Apis } from 'bitsharesjs-ws';
 import config from '../../../config';
 import NodesManager from './nodes-manager';
 
@@ -8,7 +8,7 @@ const nodesManager = new NodesManager({
 });
 
 /**
- * Connects to bitsharesjs/node_modules/bitsharesjs-ws with provided callback function
+ * Connects to bitsharesjs-ws with provided callback function
  */
 const connect = (statusCallback, changeNode) => {
   const url = changeNode ? nodesManager.getAnotherNodeUrl() : nodesManager.getInitialNodeUrl();
