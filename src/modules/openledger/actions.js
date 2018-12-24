@@ -48,7 +48,7 @@ const actions = {
 
     if (state.coins) {
       commit(types.FETCH_OPENLEDGER_COINS_COMPLETE, { coins: state.coins });
-      return;
+      return state.coins;
     }
 
     const fetchResult = await API.Openledger.fetchCoins();
