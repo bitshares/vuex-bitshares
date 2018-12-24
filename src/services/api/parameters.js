@@ -33,7 +33,7 @@ export const getComissionByType = async (type) => {
   const operations = Object.keys(ChainTypes.operations);
   const typeIdx = operations.indexOf(type);
 
-  if (typeIdx) return commisions.fees[typeIdx][1];
+  if (typeIdx >= 0) return commisions.fees[typeIdx][1];
 
   return false;
 };
