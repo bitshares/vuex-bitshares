@@ -1,3 +1,5 @@
+/* eslint no-shadow: ["error", { "allow": ["getters"] }] */
+/* eslint array-callback-return: "error" */
 import Vue from 'vue';
 import * as types from '../mutations';
 import API from '../services/api';
@@ -12,7 +14,7 @@ const actions = {
   fetchAndSubscribe: async (store, { userId, limit, callback }) => {
     // await actions.fetchUserOperations(store, { userId, limit });
     const fetchedOperation = await actions.fetchUserOperations(store, { userId, limit });
-    await store.dispatch('assets/fetchAssets', { assets: fetchedOperation.data.assetsIds } , { root: true });
+    await store.dispatch('assets/fetchAssets', { assets: fetchedOperation.data.assetsIds }, { root: true });
     await actions.subscribeToUserOperations(store, { userId, callback });
   },
 
@@ -125,6 +127,7 @@ const getters = {
     );
 
     const ordersFromUser = rootGetters['acc/getActiveOrders'];
+    // eslint-disable-next-line
     const actualOrders = (activeOrders.map(order => {
       if (ordersFromUser.some(x => x.orderId === order.orderId)) {
         return order;
@@ -132,14 +135,14 @@ const getters = {
     })).filter(x => x !== undefined);
 
     const resultActiveOrders = actualOrders.map(order => {
-      const { payload, buyer, date } = order
-      const type = buyer ? 'buy' : 'sell'
-      const assetPays = rootGetters['assets/getAssetById'](payload.amount_to_sell.asset_id)
-      const assetReceives = rootGetters['assets/getAssetById'](payload.min_to_receive.asset_id)
-      const amountPays = payload.amount_to_sell.amount / 10 ** assetPays.precision
-      const amountReceives = payload.min_to_receive.amount / 10 ** assetReceives.precision
+      const { payload, buyer, date } = order;
+      const type = buyer ? 'buy' : 'sell';
+      const assetPays = rootGetters['assets/getAssetById'](payload.amount_to_sell.asset_id);
+      const assetReceives = rootGetters['assets/getAssetById'](payload.min_to_receive.asset_id);
+      const amountPays = payload.amount_to_sell.amount / (10 ** assetPays.precision);
+      const amountReceives = payload.min_to_receive.amount / (10 ** assetReceives.precision);
 
-      const price = buyer ? amountPays / amountReceives : amountReceives / amountPays
+      const price = buyer ? amountPays / amountReceives : amountReceives / amountPays;
       const get = amountReceives;
       const spend = amountPays;
       return {
@@ -154,7 +157,7 @@ const getters = {
         dateOpen: date,
         orderId: order.orderId,
         filled: order.percentFilled
-      }
+      };
     });
     return resultActiveOrders;
   },

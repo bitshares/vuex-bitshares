@@ -28,7 +28,7 @@ const Operations = {
   },
 
   // Used for place order and fill order operations. Determines if user is a seller or buyer
-  _checkIfBidOperation: async (operation, operationType) => {
+  _checkIfBidOperation: async (operation) => {
     const ApiInstance = Apis.instance();
     const blockNum = operation.block_num;
     const trxInBlock = operation.trx_in_block;
@@ -64,7 +64,7 @@ const Operations = {
 
     let orderId;
     if (operationType === 'fill_order' || operationType === 'limit_order_create') {
-      isBid = await Operations._checkIfBidOperation(operation, operationType);
+      isBid = await Operations._checkIfBidOperation(operation);
     }
 
     if (operationType === 'limit_order_create') {
@@ -106,7 +106,8 @@ const Operations = {
 
 
     const parsedOperations = await Promise.all(filteredOperations.map(async operation => {
-      return await Operations._parseOperation(operation, userId, Parameters, ApiObjectDyn); 
+      const parsed = await Operations._parseOperation(operation, userId, Parameters, ApiObjectDyn);
+      return parsed;
     }));
 
     const assetsIds = Operations._getOperationsAssetsIds(parsedOperations);
