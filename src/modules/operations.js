@@ -11,7 +11,8 @@ const actions = {
    */
   fetchAndSubscribe: async (store, { userId, limit, callback }) => {
     // await actions.fetchUserOperations(store, { userId, limit });
-    await actions.fetchUserOperations(store, { userId, limit });
+    const fetchedOperation = await actions.fetchUserOperations(store, { userId, limit });
+    await store.dispatch('assets/fetchAssets', { assets: fetchedOperation.data.assetsIds } , { root: true });
     await actions.subscribeToUserOperations(store, { userId, callback });
   },
 
@@ -25,7 +26,7 @@ const actions = {
     const result = await API.Operations.getUserOperations({ userId, limit });
     if (result.success) {
       // fetch assets used in operations
-      store.dispatch('assets/fetchAssets', { assets: result.data.assetsIds }, { root: true });
+      await store.dispatch('assets/fetchAssets', { assets: result.data.assetsIds }, { root: true });
       commit(types.FETCH_USER_OPERATIONS_COMPLETE, {
         operations: result.data.operations
       });
@@ -99,7 +100,7 @@ const actions = {
 
 const getters = {
   getOperations: state => state.list,
-  getActiveOrders: state => {
+  getActiveOrders: (state, getters, rootState, rootGetters) => {
     const openedOrder = state.list.filter(x => x.type === 'limit_order_create');
     const canceledOrders = state.list.filter(x => x.type === 'limit_order_cancel');
     const filledOrders = state.list.filter(x => x.type === 'fill_order');
@@ -119,12 +120,43 @@ const getters = {
         notCancelOrder.percentFilled = percentFilled;
       }
     });
-
-
     const activeOrders = notCanceledOrders.filter(
       x => Object.prototype.hasOwnProperty.call(x, 'percentFilled')
     );
-    return activeOrders;
+
+    const ordersFromUser = rootGetters['acc/getActiveOrders'];
+    const actualOrders = (activeOrders.map(order => {
+      if (ordersFromUser.some(x => x.orderId === order.orderId)) {
+        return order;
+      }
+    })).filter(x => x !== undefined);
+
+    const resultActiveOrders = actualOrders.map(order => {
+      const { payload, buyer, date } = order
+      const type = buyer ? 'buy' : 'sell'
+      const assetPays = rootGetters['assets/getAssetById'](payload.amount_to_sell.asset_id)
+      const assetReceives = rootGetters['assets/getAssetById'](payload.min_to_receive.asset_id)
+      const amountPays = payload.amount_to_sell.amount / 10 ** assetPays.precision
+      const amountReceives = payload.min_to_receive.amount / 10 ** assetReceives.precision
+
+      const price = buyer ? amountPays / amountReceives : amountReceives / amountPays
+      const get = amountReceives;
+      const spend = amountPays;
+      return {
+        payAssetSymbol: assetPays.symbol,
+        receiveAssetSymbol: assetReceives.symbol,
+        get,
+        spend,
+        price,
+        vol: buyer ? get : spend,
+        order: type,
+        expiration: order.payload.expiration,
+        dateOpen: date,
+        orderId: order.orderId,
+        filled: order.percentFilled
+      }
+    });
+    return resultActiveOrders;
   },
   isFetching: state => state.pending,
   isError: state => state.error,

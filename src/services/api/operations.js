@@ -28,16 +28,21 @@ const Operations = {
   },
 
   // Used for place order and fill order operations. Determines if user is a seller or buyer
-  _checkIfBidOperation: async (operation) => {
+  _checkIfBidOperation: async (operation, operationType) => {
     const ApiInstance = Apis.instance();
     const blockNum = operation.block_num;
     const trxInBlock = operation.trx_in_block;
     const transaction = await ApiInstance.db_api().exec('get_transaction', [blockNum, trxInBlock]);
-    // console.log(transaction);
-    // console.log(transaction.operations[0][1]);
-    // console.log(transaction.operations[0][1].amount_to_sell);
-    const amountAssetId = transaction.operations[0][1].amount_to_sell.asset_id;
-    const feeAssetId = transaction.operations[0][1].fee.asset_id;
+    let amountAssetId;
+    let feeAssetId;
+    try {
+      amountAssetId = transaction.operations[0][1].amount_to_sell.asset_id;
+      feeAssetId = transaction.operations[0][1].fee.asset_id;
+    } catch (error) {
+      console.log(error);
+      amountAssetId = transaction.operations[1][1].amount_to_sell.asset_id;
+      feeAssetId = transaction.operations[1][1].fee.asset_id;
+    }
     return amountAssetId === feeAssetId;
   },
 
@@ -59,7 +64,7 @@ const Operations = {
 
     let orderId;
     if (operationType === 'fill_order' || operationType === 'limit_order_create') {
-      isBid = await Operations._checkIfBidOperation(operation);
+      isBid = await Operations._checkIfBidOperation(operation, operationType);
     }
 
     if (operationType === 'limit_order_create') {
@@ -99,8 +104,9 @@ const Operations = {
     const operationTypes = [0, 1, 2, 4];
     const filteredOperations = operations.filter(op => operationTypes.includes(op.op[0]));
 
+
     const parsedOperations = await Promise.all(filteredOperations.map(async operation => {
-      return Operations._parseOperation(operation, userId, Parameters, ApiObjectDyn);
+      return await Operations._parseOperation(operation, userId, Parameters, ApiObjectDyn); 
     }));
 
     const assetsIds = Operations._getOperationsAssetsIds(parsedOperations);
