@@ -1,5 +1,5 @@
 import { TransactionBuilder } from 'bitsharesjs';
-import { ChainConfig } from 'bitsharesjs/node_modules/bitsharesjs-ws';
+import { ChainConfig } from 'bitsharesjs-ws';
 import { getUser } from './account';
 import { encryptMemo, getMemoPrivKey } from '../../utils';
 
