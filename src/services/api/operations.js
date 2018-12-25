@@ -44,7 +44,7 @@ const Operations = {
     let otherUserName = null;
 
     let orderId;
-    
+
     if (operationType === 'limit_order_create') {
       isBid = payload.amount_to_sell.asset_id === payload.fee.asset_id;
     }
