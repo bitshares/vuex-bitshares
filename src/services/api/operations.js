@@ -27,25 +27,6 @@ const Operations = {
     return date;
   },
 
-  // Used for place order and fill order operations. Determines if user is a seller or buyer
-  _checkIfBidOperation: async (operation) => {
-    const ApiInstance = Apis.instance();
-    const blockNum = operation.block_num;
-    const trxInBlock = operation.trx_in_block;
-    const transaction = await ApiInstance.db_api().exec('get_transaction', [blockNum, trxInBlock]);
-    let amountAssetId;
-    let feeAssetId;
-    try {
-      amountAssetId = transaction.operations[0][1].amount_to_sell.asset_id;
-      feeAssetId = transaction.operations[0][1].fee.asset_id;
-    } catch (error) {
-      console.log(error);
-      amountAssetId = transaction.operations[1][1].amount_to_sell.asset_id;
-      feeAssetId = transaction.operations[1][1].fee.asset_id;
-    }
-    return amountAssetId === feeAssetId;
-  },
-
   // User for transfer operations. Determines if user received or sent
   _getOperationOtherUserName: async (userId, payload) => {
     const otherUserId = payload.to === userId ? payload.from : payload.to;
@@ -63,8 +44,12 @@ const Operations = {
     let otherUserName = null;
 
     let orderId;
-    if (operationType === 'fill_order' || operationType === 'limit_order_create') {
-      isBid = await Operations._checkIfBidOperation(operation);
+    
+    if (operationType === 'limit_order_create') {
+      isBid = payload.amount_to_sell.asset_id === payload.fee.asset_id;
+    }
+    if (operationType === 'fill_order') {
+      isBid = payload.fee.asset_id === payload.pays.asset_id;
     }
 
     if (operationType === 'limit_order_create') {
@@ -103,7 +88,6 @@ const Operations = {
 
     const operationTypes = [0, 1, 2, 4];
     const filteredOperations = operations.filter(op => operationTypes.includes(op.op[0]));
-
 
     const parsedOperations = await Promise.all(filteredOperations.map(async operation => {
       const parsed = await Operations._parseOperation(operation, userId, Parameters, ApiObjectDyn);
