@@ -92,17 +92,17 @@ const actions = {
     return { success: false, error: 'No such user' };
   },
 
-  changePassword: async ({ commit, rootGetters }, { password }) => {
+  changePassword: async ({ commit, state, rootGetters }, { oldPassword, newPassword }) => {
+    actions.unlockWallet({ commit, state }, oldPassword);
     const brainkey = rootGetters['acc/getBrainkey'];
-    console.log(brainkey);
     if (!brainkey) {
       return {
         success: false,
         error: 'Wallet locked'
       };
     }
-    const wallet = API.Account.utils.createWallet({ password, brainkey });
-    commit(types.ACCOUNT_CHANGE_PASSWORD, { wallet });
+    const wallet = API.Account.utils.createWallet({ password: newPassword, brainkey });
+    commit(types.ACCOUNT_CHANGE_PASSWORD, wallet);
     return { success: true };
   },
 
