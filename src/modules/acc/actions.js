@@ -92,6 +92,20 @@ const actions = {
     return { success: false, error: 'No such user' };
   },
 
+  changePassword: async ({ commit, rootGetters }, { password }) => {
+    const brainkey = rootGetters['acc/getBrainkey'];
+    console.log(brainkey);
+    if (!brainkey) {
+      return {
+        success: false,
+        error: 'Wallet locked'
+      };
+    }
+    const wallet = API.Account.utils.createWallet({ password, brainkey });
+    commit(types.ACCOUNT_CHANGE_PASSWORD, { wallet });
+    return { success: true };
+  },
+
   /**
    * Signs up and logs in with username and password
    * @param {string} name - username
